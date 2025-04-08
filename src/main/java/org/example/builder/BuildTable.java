@@ -1,15 +1,18 @@
 package org.example.builder;
 
-import com.mysql.cj.log.Log;
+import org.example.bean.Constants;
+import org.example.bean.TableInfo;
 import org.example.utils.PropertiesUtils;
+import org.example.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.spi.DirectoryManager;
-import java.awt.image.DirectColorModel;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
-import static java.lang.Class.forName;
+import static org.example.bean.Constants.SUFFIX_BEAN_PARAM;
+
 
 public class BuildTable {
 
@@ -34,13 +37,30 @@ public class BuildTable {
     public static void getTables(){
         PreparedStatement ps = null;
         ResultSet tableResult = null;
+
+        List<TableInfo> tableInfoList = new ArrayList<>();
         try {
           ps = conn.prepareStatement(SQL_SHOW_TABLE_STATUS);
           tableResult = ps.executeQuery();
           while (tableResult.next()) {
               String tableName = tableResult.getString("name");
               String comment = tableResult.getString("comment");
-              logger.info("表名: {}, 注释: {}", tableName, comment);
+//              logger.info("表名: {}, 注释: {}", tableName, comment);
+
+
+              String beanName = tableName;
+              if(Constants.IGNORE_TABLE_PERFIX) {
+                  beanName = tableName.substring(beanName.indexOf("_")+1);
+              }
+              beanName = processFiled(beanName, true);
+
+              TableInfo tableInfo = new TableInfo();
+              tableInfo.setTableName(tableName);
+              tableInfo.setBeanName(beanName);
+              tableInfo.setComment(comment);
+              tableInfo.setBeanParamName(beanName + Constants.SUFFIX_BEAN_PARAM);
+
+              logger.info("表：{},备注:{},javabean:{},javaParamBean:{}", tableInfo.getTableName(), tableInfo.getComment(), tableInfo.getBeanName(), tableInfo.getBeanParamName());
           }
         } catch (SQLException e) {
             logger.error("读取表失败",e);
@@ -67,5 +87,16 @@ public class BuildTable {
                 }
             }
         }
+    }
+
+    private static String processFiled(String field, Boolean uperCaseFirstLetter){
+        StringBuffer sb = new StringBuffer();
+        String[] fields = field.split("_");
+
+        sb.append(uperCaseFirstLetter ? StringUtils.uperCaseFirstLetter(fields[0]) : fields[0]);
+        for(int i = 1, len = fields.length; i < len; i++){
+            sb.append(StringUtils.uperCaseFirstLetter(fields[i]));
+        }
+        return sb.toString();
     }
 }
