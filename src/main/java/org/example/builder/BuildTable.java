@@ -1,25 +1,36 @@
 package org.example.builder;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.example.bean.Constants;
+import org.example.bean.FieldInfo;
 import org.example.bean.TableInfo;
+import org.example.utils.JsonUtils;
 import org.example.utils.PropertiesUtils;
 import org.example.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.*;
+import java.io.FileInputStream;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.example.bean.Constants.SUFFIX_BEAN_PARAM;
 
 
+/**
+ * BuildTable类用于从数据库中读取表信息并生成相应的Java类信息。
+ */
 public class BuildTable {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildTable.class);
     private static Connection conn = null;
 
     private static String SQL_SHOW_TABLE_STATUS = "show table status";
+
+    private static String SQL_SHOW_TABLE_FIELDS = "show full fields from %s";
 
     static {
         String diverName = PropertiesUtils.getString("db.driver.name");
@@ -45,8 +56,6 @@ public class BuildTable {
           while (tableResult.next()) {
               String tableName = tableResult.getString("name");
               String comment = tableResult.getString("comment");
-//              logger.info("表名: {}, 注释: {}", tableName, comment);
-
 
               String beanName = tableName;
               if(Constants.IGNORE_TABLE_PERFIX) {
@@ -60,7 +69,11 @@ public class BuildTable {
               tableInfo.setComment(comment);
               tableInfo.setBeanParamName(beanName + Constants.SUFFIX_BEAN_PARAM);
 
-              logger.info("表：{},备注:{},javabean:{},javaParamBean:{}", tableInfo.getTableName(), tableInfo.getComment(), tableInfo.getBeanName(), tableInfo.getBeanParamName());
+              List<FieldInfo> fieldInfoList = readFieldInfo(tableInfo);
+
+              logger.info("表：{}", JsonUtils.convertObject2Json(tableInfo));
+              logger.info("字段：{}", JsonUtils.convertObject2Json(fieldInfoList));
+
           }
         } catch (SQLException e) {
             logger.error("读取表失败",e);
@@ -89,6 +102,72 @@ public class BuildTable {
         }
     }
 
+    private static List<FieldInfo> readFieldInfo(TableInfo tableInfo){
+        PreparedStatement ps = null;
+        ResultSet fieldResult = null;
+
+        List<FieldInfo> fieldInfoList = new ArrayList<>();
+        try {
+            ps = conn.prepareStatement(String.format(SQL_SHOW_TABLE_FIELDS, tableInfo.getTableName()));
+            fieldResult = ps.executeQuery();
+            while (fieldResult.next()) {
+                String field = fieldResult.getString("field");
+                String type = fieldResult.getString("type");
+                String extra = fieldResult.getString("extra");
+                String comment = fieldResult.getString("comment");
+
+                if(type.indexOf("(") > 0){
+                    type = type.substring(0, type.indexOf("("));
+                }
+                String processedName = processFiled(field, false);
+
+                FieldInfo fieldInfo = new FieldInfo();
+                fieldInfoList.add(fieldInfo);
+
+                fieldInfo.setFieldName(field);
+                fieldInfo.setComment(comment);
+                fieldInfo.setSqlType(type);
+                fieldInfo.setIsAutoIncrement("auto_increment".equalsIgnoreCase(extra));
+                fieldInfo.setPropertyName(processedName);
+                fieldInfo.setJavaType(processJavaType(type));
+
+                if(ArrayUtils.contains(Constants.SQL_DATE_TYPES,type)){
+                    tableInfo.setHaveDate(true);
+                }else{
+                    tableInfo.setHaveDate(false);
+                }
+                if(ArrayUtils.contains(Constants.SQL_DATA_TIME_TYPES,type)){
+                    tableInfo.setHaveDateTime(true);
+                }else{
+                    tableInfo.setHaveDateTime(false);
+                }
+                if(ArrayUtils.contains(Constants.SQL_DECIMAL_TYPE,type)){
+                    tableInfo.setHaveBigDecimal(true);
+                }else{
+                    tableInfo.setHaveBigDecimal(false);
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("读取表失败",e);
+        } finally {
+            if(fieldResult != null) {
+                try {
+                    fieldResult.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(ps != null) {
+                try{
+                    ps.close();
+                }catch(SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return fieldInfoList;
+    }
+
     private static String processFiled(String field, Boolean uperCaseFirstLetter){
         StringBuffer sb = new StringBuffer();
         String[] fields = field.split("_");
@@ -98,5 +177,21 @@ public class BuildTable {
             sb.append(StringUtils.uperCaseFirstLetter(fields[i]));
         }
         return sb.toString();
+    }
+
+    private static String processJavaType(String type){
+        if(ArrayUtils.contains(Constants.SQL_DATA_TIME_TYPES, type) || ArrayUtils.contains(Constants.SQL_DATE_TYPES, type)){
+            return "Date";
+        }else if(ArrayUtils.contains(Constants.SQL_INTEGER_TYPE, type)){
+            return "Integer";
+        }else if(ArrayUtils.contains(Constants.SQL_LONG_TYPE, type)){
+            return "Long";
+        }else if(ArrayUtils.contains(Constants.SQL_STRING_TYPE, type)){
+            return "String";
+        }else if(ArrayUtils.contains(Constants.SQL_DECIMAL_TYPE, type)){
+            return "BigDecimal";
+        }else{
+            throw new RuntimeException("无法识别的类型：" + type);
+        }
     }
 }
