@@ -102,6 +102,7 @@ public class BuildPo {
                 bw.newLine();
                 bw.write("\t}");
                 bw.newLine();
+                bw.newLine();
 
                 bw.write("\tpublic " + fieldInfo.getJavaType() + " get" + tempFieldPropertyName + "() {");
                 bw.newLine();
@@ -109,7 +110,30 @@ public class BuildPo {
                 bw.newLine();
                 bw.write("\t}");
                 bw.newLine();
+                bw.newLine();
             }
+
+            //重写toString()方法
+            bw.write("\t@Override");
+            bw.newLine();
+            bw.write("\tpublic String toString() {");
+            bw.newLine();
+            bw.write("\t\treturn ");
+
+            Integer index = 0;
+            for(FieldInfo fieldInfo : tableInfo.getFieldList()) {
+                if(index > 0) {
+                    bw.write(" + \", " + fieldInfo.getComment() + ":\" + (" + fieldInfo.getPropertyName() + " == null ? \"空\" : " + fieldInfo.getPropertyName() + ")");
+                }else{
+                    index++;
+                    bw.write("\"" + fieldInfo.getComment() + ":\" + (" + fieldInfo.getPropertyName() + " == null ? \"空\" : " + fieldInfo.getPropertyName() + ")");
+                }
+
+            }
+            bw.write(";");
+            bw.newLine();
+            bw.write("\t}");
+            bw.newLine();
 
             bw.write("}");
             bw.flush();
