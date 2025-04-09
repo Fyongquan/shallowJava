@@ -12,7 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -69,8 +71,7 @@ public class BuildTable {
                 readFieldInfo(tableInfo);
                 getkeyIndexInfo(tableInfo);
 
-                logger.info("表：{}", JsonUtils.convertObject2Json(tableInfo));
-
+                tableInfoList.add(tableInfo);
             }
         } catch (SQLException e) {
             logger.error("读取表失败", e);
@@ -172,6 +173,11 @@ public class BuildTable {
 
         List<FieldInfo> fieldInfoList = new ArrayList<>();
         try {
+            Map<String, FieldInfo> tempMap = new HashMap<>();
+            for(FieldInfo fieldInfo : tableInfo.getFieldList()){
+                tempMap.put(fieldInfo.getFieldName(), fieldInfo);
+            }
+
             ps = conn.prepareStatement(String.format(SQL_SHOW_TABLE_Index, tableInfo.getTableName()));
             fieldResult = ps.executeQuery();
             while (fieldResult.next()) {
@@ -187,11 +193,7 @@ public class BuildTable {
                     keyFieldList = new ArrayList<>();
                     tableInfo.getKeyIndexMap().put(keyName, keyFieldList);
                 }
-                for (FieldInfo fieldInfo : tableInfo.getFieldList()) {
-                    if (fieldInfo.getFieldName().equals(columnName)) {
-                        keyFieldList.add(fieldInfo);
-                    }
-                }
+                keyFieldList.add(tempMap.get(columnName));
             }
         } catch (SQLException e) {
             logger.error("读取索引失败", e);
