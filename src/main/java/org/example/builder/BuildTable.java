@@ -109,6 +109,10 @@ public class BuildTable {
         try {
             ps = conn.prepareStatement(String.format(SQL_SHOW_TABLE_FIELDS, tableInfo.getTableName()));
             fieldResult = ps.executeQuery();
+
+            tableInfo.setHaveDate(false);
+            tableInfo.setHaveDateTime(false);
+            tableInfo.setHaveBigDecimal(false);
             while (fieldResult.next()) {
                 String field = fieldResult.getString("field");
                 String type = fieldResult.getString("type");
@@ -132,18 +136,12 @@ public class BuildTable {
 
                 if (ArrayUtils.contains(Constants.SQL_DATE_TYPES, type)) {
                     tableInfo.setHaveDate(true);
-                } else {
-                    tableInfo.setHaveDate(false);
                 }
                 if (ArrayUtils.contains(Constants.SQL_DATA_TIME_TYPES, type)) {
                     tableInfo.setHaveDateTime(true);
-                } else {
-                    tableInfo.setHaveDateTime(false);
                 }
                 if (ArrayUtils.contains(Constants.SQL_DECIMAL_TYPE, type)) {
                     tableInfo.setHaveBigDecimal(true);
-                } else {
-                    tableInfo.setHaveBigDecimal(false);
                 }
             }
             tableInfo.setFieldList(fieldInfoList);

@@ -1,7 +1,10 @@
 package org.example.builder;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.example.bean.Constants;
+import org.example.bean.FieldInfo;
 import org.example.bean.TableInfo;
+import org.example.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,11 +34,65 @@ public class BuildPo {
 
             bw.write("import java.io.Serializable;");
             bw.newLine();
+
+            if(tableInfo.getHaveDate() || tableInfo.getHaveDateTime()) {
+                bw.write("import java.util.Date;");
+                bw.newLine();
+                bw.write(Constants.BEAN_DATE_FORMAT_CLASS);
+                bw.newLine();
+                bw.write(Constants.BEAN_DATE_PARSE_CLASS);
+                bw.newLine();
+            }
+            if(tableInfo.getHaveBigDecimal()){
+                bw.write("import java.math.BigDecimal;");
+                bw.newLine();
+                bw.write(Constants.BEAN_DATE_FORMAT_CLASS);
+                bw.newLine();
+                bw.write(Constants.BEAN_DATE_PARSE_CLASS);
+                bw.newLine();
+            }
+            boolean haveJsonIgnore = false;
+            for(FieldInfo fieldInfo : tableInfo.getFieldList()) {
+                if(!haveJsonIgnore && ArrayUtils.contains(Constants.IGNORE_BEAN_TOJSON_FIELD.split(","), fieldInfo.getPropertyName())){
+                    haveJsonIgnore = true;
+                    bw.write(Constants.IGNORE_BEAN_TOJSON_CLASS);
+                    bw.newLine();
+                }
+            }
             bw.newLine();
+
+            //构建类注释
+            BuildComment.createClassComment(bw,tableInfo.getComment());
 
             bw.write("public class " + tableInfo.getBeanName() + " implements Serializable {");
-
             bw.newLine();
+
+            for(FieldInfo fieldInfo : tableInfo.getFieldList()) {
+                BuildComment.createFieldComment(bw,fieldInfo.getComment());
+
+                if(ArrayUtils.contains(Constants.SQL_DATA_TIME_TYPES, fieldInfo.getSqlType())){
+                    bw.write("\t" + String.format(Constants.BEAN_DATE_FORMAT_EXPRESSION, DateUtils.DEFAULT_DATETIME_FORMAT));
+                    bw.newLine();
+
+                    bw.write("\t" + String.format(Constants.BEAN_DATE_PARSE_EXPRESSION, DateUtils.DEFAULT_DATETIME_FORMAT));
+                    bw.newLine();
+                }
+                if(ArrayUtils.contains(Constants.SQL_DATE_TYPES, fieldInfo.getSqlType())){
+                    bw.write("\t" + String.format(Constants.BEAN_DATE_FORMAT_EXPRESSION, DateUtils.DEFAULT_DATE_FORMAT));
+                    bw.newLine();
+
+                    bw.write("\t" + String.format(Constants.BEAN_DATE_PARSE_EXPRESSION, DateUtils.DEFAULT_DATE_FORMAT));
+                    bw.newLine();
+                }
+                if(ArrayUtils.contains(Constants.IGNORE_BEAN_TOJSON_FIELD.split(","), fieldInfo.getPropertyName())){
+                    bw.write("\t" + Constants.IGNORE_BEAN_TOJSON_EXPRESSION);
+                    bw.newLine();
+                }
+
+                bw.write("\tprivate " + fieldInfo.getJavaType() + " " + fieldInfo.getPropertyName() + ";");
+                bw.newLine();
+            }
+
             bw.write("}");
             bw.flush();
         } catch (Exception e) {
