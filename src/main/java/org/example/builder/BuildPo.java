@@ -5,6 +5,7 @@ import org.example.bean.Constants;
 import org.example.bean.FieldInfo;
 import org.example.bean.TableInfo;
 import org.example.utils.DateUtils;
+import org.example.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,6 +91,23 @@ public class BuildPo {
                 }
 
                 bw.write("\tprivate " + fieldInfo.getJavaType() + " " + fieldInfo.getPropertyName() + ";");
+                bw.newLine();
+            }
+
+            for(FieldInfo fieldInfo : tableInfo.getFieldList()) {
+                String tempFieldPropertyName = StringUtils.uperCaseFirstLetter(fieldInfo.getPropertyName());
+                bw.write("\tpublic void set" + tempFieldPropertyName + "(" + fieldInfo.getJavaType() + " " + fieldInfo.getPropertyName() + ") {");
+                bw.newLine();
+                bw.write("\t\tthis." + fieldInfo.getPropertyName() + " = " + fieldInfo.getPropertyName() + ";");
+                bw.newLine();
+                bw.write("\t}");
+                bw.newLine();
+
+                bw.write("\tpublic " + fieldInfo.getJavaType() + " get" + tempFieldPropertyName + "() {");
+                bw.newLine();
+                bw.write("\t\treturn " + fieldInfo.getPropertyName() + ";");
+                bw.newLine();
+                bw.write("\t}");
                 bw.newLine();
             }
 
