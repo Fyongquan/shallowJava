@@ -22,9 +22,17 @@ public class Constants {
 
     public static String PACKAGE_BASE;
 
+    public static String PACKAGE_PO;
+
+    public static String PACKAGE_UTILS;
+
+    public static String PACKAGE_ENUMS;
+
     public static String PATH_PO;
 
-    public static String PACKAGE_PO;
+    public static String PATH_UTILS;
+
+    public static String PATH_ENUMS;
 
     public static String AUTHER;
 
@@ -45,12 +53,19 @@ public class Constants {
 
         PACKAGE_BASE = PropertiesUtils.getString("package.base");
 
-        PATH_BASE = PropertiesUtils.getString("path.base") + PACKAGE_BASE;
-        PATH_BASE = PATH_BASE.replace(".", "/");
-
-        PATH_PO = PATH_BASE + "/" + PropertiesUtils.getString("package.po").replace(".", "/");
-
         PACKAGE_PO = PACKAGE_BASE + "." + PropertiesUtils.getString("package.po");
+
+        PACKAGE_UTILS = PACKAGE_BASE + '.' + PropertiesUtils.getString("package.utils");
+
+        PACKAGE_ENUMS = PACKAGE_BASE + "." + PropertiesUtils.getString("package.enums");
+
+        PATH_BASE = PropertiesUtils.getString("path.base");
+
+        PATH_PO = PATH_BASE + "/" + PACKAGE_PO.replace(".", "/");
+
+        PATH_UTILS = PATH_BASE + "/" + PACKAGE_UTILS.replace(".", "/");
+
+        PATH_ENUMS = PATH_BASE + "/" + PACKAGE_ENUMS.replace(".", "/");
     }
 
     public final static String[] SQL_DATA_TIME_TYPES = new String[]{"datetime", "timestamp"};

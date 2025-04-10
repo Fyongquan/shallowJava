@@ -1,0 +1,32 @@
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
+public enum DateTimePatternEnum {
+    YYYY_MM_DD_HH_MM_SS("yyyy-MM-dd HH:mm:ss"),
+    YYYY_MM_DD("yyyy-MM-dd");
+
+    private final String pattern;
+    private final DateTimeFormatter formatter;
+
+    DateTimePatternEnum(String pattern) {
+        this.pattern = pattern;
+        this.formatter = DateTimeFormatter.ofPattern(pattern)
+                .withLocale(Locale.CHINESE);
+    }
+
+    // 获取格式模板字符串
+    public String getPattern() {
+        return pattern;
+    }
+
+    // 获取线程安全的格式化器
+    public DateTimeFormatter getFormatter() {
+        return formatter;
+    }
+
+    // 快速格式化当前时间（可选扩展）
+    public String formatNow() {
+        return LocalDateTime.now().format(formatter);
+    }
+}

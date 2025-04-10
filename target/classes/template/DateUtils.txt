@@ -1,0 +1,37 @@
+import java.time.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+public class DateUtils {
+    private static final Map<String, DateTimeFormatter> formatterCache = new HashMap<>();
+
+    public static String format(LocalDateTime date, String pattern) {
+        return getFormatter(pattern).format(date);
+    }
+
+    public static String format(LocalDate date, String pattern) {
+        return getFormatter(pattern).format(date);
+    }
+
+    private static DateTimeFormatter getFormatter(String pattern) {
+        return formatterCache.computeIfAbsent(pattern, DateTimeFormatter::ofPattern);
+    }
+
+    public static LocalDateTime parseToLocalDateTime(String dateStr, String pattern) {
+        return LocalDateTime.parse(dateStr, getFormatter(pattern));
+    }
+
+    public static LocalDate parseToLocalDate(String dateStr, String pattern) {
+        return LocalDate.parse(dateStr, getFormatter(pattern));
+    }
+
+    public static Date parseToDate(String dateStr, String pattern) {
+        LocalDateTime localDateTime = LocalDateTime.parse(dateStr, getFormatter(pattern));
+        return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+    }
+}

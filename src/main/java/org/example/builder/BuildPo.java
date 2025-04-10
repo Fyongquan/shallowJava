@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 
 /**
- *
+ * 创建PO实体
  */
 public class BuildPo {
     public static final Logger logger = LoggerFactory.getLogger(BuildPo.class);
@@ -36,15 +36,26 @@ public class BuildPo {
             bw.write("import java.io.Serializable;");
             bw.newLine();
 
-            if(tableInfo.getHaveDate() || tableInfo.getHaveDateTime()) {
-                bw.write("import java.util.Date;");
+            if (tableInfo.getHaveDateTime()) {
+                bw.write("import java.time.LocalDateTime;");
+                bw.newLine();
+            }
+            if(tableInfo.getHaveDate()){
+                bw.write("import java.time.LocalDate;");
+                bw.newLine();
+
+            }
+            if(tableInfo.getHaveDateTime() || tableInfo.getHaveDate()){
+                bw.write("import " + Constants.PACKAGE_UTILS +".DateUtils;");
+                bw.newLine();
+                bw.write("import " + Constants.PACKAGE_ENUMS +".DateTimePatternEnum;");
                 bw.newLine();
                 bw.write(Constants.BEAN_DATE_FORMAT_CLASS);
                 bw.newLine();
                 bw.write(Constants.BEAN_DATE_PARSE_CLASS);
                 bw.newLine();
             }
-            if(tableInfo.getHaveBigDecimal()){
+            if (tableInfo.getHaveBigDecimal()) {
                 bw.write("import java.math.BigDecimal;");
                 bw.newLine();
                 bw.write(Constants.BEAN_DATE_FORMAT_CLASS);
@@ -53,8 +64,8 @@ public class BuildPo {
                 bw.newLine();
             }
             boolean haveJsonIgnore = false;
-            for(FieldInfo fieldInfo : tableInfo.getFieldList()) {
-                if(!haveJsonIgnore && ArrayUtils.contains(Constants.IGNORE_BEAN_TOJSON_FIELD.split(","), fieldInfo.getPropertyName())){
+            for (FieldInfo fieldInfo : tableInfo.getFieldList()) {
+                if (!haveJsonIgnore && ArrayUtils.contains(Constants.IGNORE_BEAN_TOJSON_FIELD.split(","), fieldInfo.getPropertyName())) {
                     haveJsonIgnore = true;
                     bw.write(Constants.IGNORE_BEAN_TOJSON_CLASS);
                     bw.newLine();
@@ -63,29 +74,29 @@ public class BuildPo {
             bw.newLine();
 
             //构建类注释
-            BuildComment.createClassComment(bw,tableInfo.getComment());
+            BuildComment.createClassComment(bw, tableInfo.getComment());
 
             bw.write("public class " + tableInfo.getBeanName() + " implements Serializable {");
             bw.newLine();
 
-            for(FieldInfo fieldInfo : tableInfo.getFieldList()) {
-                BuildComment.createFieldComment(bw,fieldInfo.getComment());
+            for (FieldInfo fieldInfo : tableInfo.getFieldList()) {
+                BuildComment.createFieldComment(bw, fieldInfo.getComment());
 
-                if(ArrayUtils.contains(Constants.SQL_DATA_TIME_TYPES, fieldInfo.getSqlType())){
+                if (ArrayUtils.contains(Constants.SQL_DATA_TIME_TYPES, fieldInfo.getSqlType())) {
                     bw.write("\t" + String.format(Constants.BEAN_DATE_FORMAT_EXPRESSION, DateUtils.DEFAULT_DATETIME_FORMAT));
                     bw.newLine();
 
                     bw.write("\t" + String.format(Constants.BEAN_DATE_PARSE_EXPRESSION, DateUtils.DEFAULT_DATETIME_FORMAT));
                     bw.newLine();
                 }
-                if(ArrayUtils.contains(Constants.SQL_DATE_TYPES, fieldInfo.getSqlType())){
+                if (ArrayUtils.contains(Constants.SQL_DATE_TYPES, fieldInfo.getSqlType())) {
                     bw.write("\t" + String.format(Constants.BEAN_DATE_FORMAT_EXPRESSION, DateUtils.DEFAULT_DATE_FORMAT));
                     bw.newLine();
 
                     bw.write("\t" + String.format(Constants.BEAN_DATE_PARSE_EXPRESSION, DateUtils.DEFAULT_DATE_FORMAT));
                     bw.newLine();
                 }
-                if(ArrayUtils.contains(Constants.IGNORE_BEAN_TOJSON_FIELD.split(","), fieldInfo.getPropertyName())){
+                if (ArrayUtils.contains(Constants.IGNORE_BEAN_TOJSON_FIELD.split(","), fieldInfo.getPropertyName())) {
                     bw.write("\t" + Constants.IGNORE_BEAN_TOJSON_EXPRESSION);
                     bw.newLine();
                 }
@@ -94,7 +105,7 @@ public class BuildPo {
                 bw.newLine();
             }
 
-            for(FieldInfo fieldInfo : tableInfo.getFieldList()) {
+            for (FieldInfo fieldInfo : tableInfo.getFieldList()) {
                 String tempFieldPropertyName = StringUtils.uperCaseFirstLetter(fieldInfo.getPropertyName());
                 bw.write("\tpublic void set" + tempFieldPropertyName + "(" + fieldInfo.getJavaType() + " " + fieldInfo.getPropertyName() + ") {");
                 bw.newLine();
@@ -121,12 +132,24 @@ public class BuildPo {
             bw.write("\t\treturn ");
 
             Integer index = 0;
-            for(FieldInfo fieldInfo : tableInfo.getFieldList()) {
-                if(index > 0) {
-                    bw.write(" + \", " + fieldInfo.getComment() + ":\" + (" + fieldInfo.getPropertyName() + " == null ? \"空\" : " + fieldInfo.getPropertyName() + ")");
-                }else{
+            for (FieldInfo fieldInfo : tableInfo.getFieldList()) {
+                if (index > 0) {
+                    if (fieldInfo.getJavaType().equals("LocalDateTime")) {
+                        bw.write(" + \", " + fieldInfo.getComment() + ":\" + (" + fieldInfo.getPropertyName() + " == null ? \"空\" : DateUtils.format(" + fieldInfo.getPropertyName() + ", DateTimePatternEnum.YYYY_MM_DD_HH_MM_SS.getPattern()))");
+                    } else if(fieldInfo.getJavaType().equals("LocalDate")){
+                        bw.write(" + \", " + fieldInfo.getComment() + ":\" + (" + fieldInfo.getPropertyName() + " == null ? \"空\" : DateUtils.format(" + fieldInfo.getPropertyName() + ", DateTimePatternEnum.YYYY_MM_DD.getPattern()))");
+                    }else {
+                        bw.write(" + \", " + fieldInfo.getComment() + ":\" + (" + fieldInfo.getPropertyName() + " == null ? \"空\" : " + fieldInfo.getPropertyName() + ")");
+                    }
+                } else {
                     index++;
-                    bw.write("\"" + fieldInfo.getComment() + ":\" + (" + fieldInfo.getPropertyName() + " == null ? \"空\" : " + fieldInfo.getPropertyName() + ")");
+                    if (fieldInfo.getJavaType().equals("LocalDateTime")) {
+                        bw.write("\"" + fieldInfo.getComment() + ":\" + (" + fieldInfo.getPropertyName() + " == null ? \"空\" : DateUtils.format(" + fieldInfo.getPropertyName() + ", DateTimePatternEnum.YYYY_MM_DD_HH_MM_SS.getPattern()))");
+                    }else if(fieldInfo.getJavaType().equals("LocalDate")){
+                        bw.write("\"" + fieldInfo.getComment() + ":\" + (" + fieldInfo.getPropertyName() + " == null ? \"空\" : DateUtils.format(" + fieldInfo.getPropertyName() + ", DateTimePatternEnum.YYYY_MM_DD.getPattern()))");
+                    } else {
+                        bw.write("\"" + fieldInfo.getComment() + ":\" + (" + fieldInfo.getPropertyName() + " == null ? \"空\" : " + fieldInfo.getPropertyName() + ")");
+                    }
                 }
 
             }

@@ -226,9 +226,11 @@ public class BuildTable {
     }
 
     private static String processJavaType(String type) {
-        if (ArrayUtils.contains(Constants.SQL_DATA_TIME_TYPES, type) || ArrayUtils.contains(Constants.SQL_DATE_TYPES, type)) {
-            return "Date";
-        } else if (ArrayUtils.contains(Constants.SQL_INTEGER_TYPE, type)) {
+        if (ArrayUtils.contains(Constants.SQL_DATA_TIME_TYPES, type)) {
+            return "LocalDateTime";
+        }else if(ArrayUtils.contains(Constants.SQL_DATE_TYPES, type)){
+            return "LocalDate";
+        }else if (ArrayUtils.contains(Constants.SQL_INTEGER_TYPE, type)) {
             return "Integer";
         } else if (ArrayUtils.contains(Constants.SQL_LONG_TYPE, type)) {
             return "Long";
