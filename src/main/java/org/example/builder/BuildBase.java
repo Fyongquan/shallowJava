@@ -10,7 +10,9 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * 基础工具类模板构建器
+ */
 public class BuildBase {
     private static Logger logger = LoggerFactory.getLogger(BuildBase.class);
     public static void execute() {

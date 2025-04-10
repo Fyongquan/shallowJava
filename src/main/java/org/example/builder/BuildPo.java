@@ -63,6 +63,8 @@ public class BuildPo {
                 bw.write(Constants.BEAN_DATE_PARSE_CLASS);
                 bw.newLine();
             }
+
+            //忽略属性
             boolean haveJsonIgnore = false;
             for (FieldInfo fieldInfo : tableInfo.getFieldList()) {
                 if (!haveJsonIgnore && ArrayUtils.contains(Constants.IGNORE_BEAN_TOJSON_FIELD.split(","), fieldInfo.getPropertyName())) {

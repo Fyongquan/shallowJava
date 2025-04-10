@@ -5,7 +5,13 @@ import org.example.utils.PropertiesUtils;
 public class Constants {
     public static Boolean IGNORE_TABLE_PERFIX;
 
-    public static String SUFFIX_BEAN_PARAM;
+    public static String SUFFIX_BEAN_QUERY;
+
+    public static String SUFFIX_BEAN_QUERY_FUZZY;
+
+    public static String SUFFIX_BEAN_QUERY_DATE_START;
+
+    public static String SUFFIX_BEAN_QUERY_DATE_END;
 
     //需要忽略的属性
     public static String IGNORE_BEAN_TOJSON_FIELD;
@@ -24,11 +30,15 @@ public class Constants {
 
     public static String PACKAGE_PO;
 
+    public static String PACKAGE_QUERY;
     public static String PACKAGE_UTILS;
 
     public static String PACKAGE_ENUMS;
 
+
     public static String PATH_PO;
+
+    public static String PATH_QUERY;
 
     public static String PATH_UTILS;
 
@@ -49,11 +59,16 @@ public class Constants {
         AUTHER = PropertiesUtils.getString("author");
 
         IGNORE_TABLE_PERFIX = Boolean.valueOf(PropertiesUtils.getString("ignore.table.prefix"));
-        SUFFIX_BEAN_PARAM = PropertiesUtils.getString("suffix.bean.param");
+        SUFFIX_BEAN_QUERY = PropertiesUtils.getString("suffix.bean.query");
+        SUFFIX_BEAN_QUERY_FUZZY = PropertiesUtils.getString("suffix.bean.query.fuzzy");
+        SUFFIX_BEAN_QUERY_DATE_START = PropertiesUtils.getString("suffix.bean.query.date.start");
+        SUFFIX_BEAN_QUERY_DATE_END = PropertiesUtils.getString("suffix.bean.query.date.end");
 
         PACKAGE_BASE = PropertiesUtils.getString("package.base");
 
         PACKAGE_PO = PACKAGE_BASE + "." + PropertiesUtils.getString("package.po");
+
+        PACKAGE_QUERY = PACKAGE_BASE + "." + PropertiesUtils.getString("package.query");
 
         PACKAGE_UTILS = PACKAGE_BASE + '.' + PropertiesUtils.getString("package.utils");
 
@@ -62,6 +77,8 @@ public class Constants {
         PATH_BASE = PropertiesUtils.getString("path.base");
 
         PATH_PO = PATH_BASE + "/" + PACKAGE_PO.replace(".", "/");
+
+        PATH_QUERY = PATH_BASE + "/" + PACKAGE_QUERY.replace(".", "/");
 
         PATH_UTILS = PATH_BASE + "/" + PACKAGE_UTILS.replace(".", "/");
 
