@@ -1,0 +1,48 @@
+import io.lettuce.core.dynamic.annotation.Param;
+
+import java.util.List;
+
+public interface BaseMapper<T, P> {
+
+    /**
+     * insert：(插入一条数据)，<br/>
+     * @param t
+     * @return
+     */
+    Integer insert(@Param("bean") T t);
+
+    /**
+     * insertOrUpdate：(插入或更新一条数据)，<br/>
+     * @param t
+     * @return
+     */
+    Integer insertOrUpdate(@Param("bean") T t);
+
+    /**
+     * insertBatch：(批量插入数据)，<br/>
+     * @param list
+     * @return
+     */
+    Integer insertBatch(@Param("beans") List<T> list);
+
+    /**
+     * insertOrUpdateBatch：(批量插入或更新数据)，<br/>
+     * @param list
+     * @return
+     */
+    Integer insertOrUpdateBatch(@Param("beans") List<T> list);
+
+    /**
+     * selectList：(根据参数查询数据)，<br/>
+     * @param p
+     * @return
+     */
+    List<T> selectList(@Param("query") P p);
+
+    /**
+     * selectCount：(根据集合查询数量)，<br/>
+     * @param p
+     * @return
+     */
+    Integer selectCount(@Param("query") P p);
+}

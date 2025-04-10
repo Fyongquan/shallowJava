@@ -161,7 +161,7 @@ public class BuildQuery {
             bw.write("}");
             bw.flush();
         } catch (Exception e) {
-            logger.info("创建po失败", e);
+            logger.info("创建Query失败", e);
         }
     }
 }

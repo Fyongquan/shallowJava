@@ -1,10 +1,7 @@
 package org.example;
 
 import org.example.bean.TableInfo;
-import org.example.builder.BuildBase;
-import org.example.builder.BuildPo;
-import org.example.builder.BuildQuery;
-import org.example.builder.BuildTable;
+import org.example.builder.*;
 
 import java.util.List;
 
@@ -17,6 +14,7 @@ public class Main {
         for (TableInfo tableInfo : tableInfoList) {
             BuildPo.execute(tableInfo);
             BuildQuery.execute(tableInfo);
+            BuildMapper.execute(tableInfo);
         }
     }
 }

@@ -13,6 +13,8 @@ public class Constants {
 
     public static String SUFFIX_BEAN_QUERY_DATE_END;
 
+    public static String SUFFIX_MAPPER;
+
     //需要忽略的属性
     public static String IGNORE_BEAN_TOJSON_FIELD;
     public static String IGNORE_BEAN_TOJSON_CLASS;
@@ -35,6 +37,7 @@ public class Constants {
 
     public static String PACKAGE_ENUMS;
 
+    public static String PACKAGE_MAPPER;
 
     public static String PATH_PO;
 
@@ -43,6 +46,8 @@ public class Constants {
     public static String PATH_UTILS;
 
     public static String PATH_ENUMS;
+
+    public static String PATH_MAPPER;
 
     public static String AUTHER;
 
@@ -63,6 +68,7 @@ public class Constants {
         SUFFIX_BEAN_QUERY_FUZZY = PropertiesUtils.getString("suffix.bean.query.fuzzy");
         SUFFIX_BEAN_QUERY_DATE_START = PropertiesUtils.getString("suffix.bean.query.date.start");
         SUFFIX_BEAN_QUERY_DATE_END = PropertiesUtils.getString("suffix.bean.query.date.end");
+        SUFFIX_MAPPER = PropertiesUtils.getString("suffix.mapper");
 
         PACKAGE_BASE = PropertiesUtils.getString("package.base");
 
@@ -74,6 +80,8 @@ public class Constants {
 
         PACKAGE_ENUMS = PACKAGE_BASE + "." + PropertiesUtils.getString("package.enums");
 
+        PACKAGE_MAPPER = PACKAGE_BASE + "." + PropertiesUtils.getString("package.mapper");
+
         PATH_BASE = PropertiesUtils.getString("path.base");
 
         PATH_PO = PATH_BASE + "/" + PACKAGE_PO.replace(".", "/");
@@ -83,6 +91,8 @@ public class Constants {
         PATH_UTILS = PATH_BASE + "/" + PACKAGE_UTILS.replace(".", "/");
 
         PATH_ENUMS = PATH_BASE + "/" + PACKAGE_ENUMS.replace(".", "/");
+
+        PATH_MAPPER = PATH_BASE + "/" + PACKAGE_MAPPER.replace(".", "/");
     }
 
     public final static String[] SQL_DATA_TIME_TYPES = new String[]{"datetime", "timestamp"};
