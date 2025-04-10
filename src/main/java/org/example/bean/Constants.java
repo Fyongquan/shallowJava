@@ -27,6 +27,9 @@ public class Constants {
     public static String BEAN_DATE_PARSE_EXPRESSION;
 
     public static String PATH_BASE;
+    public static String PATH_JAVA;
+
+    public static String PATH_RESOURCES;
 
     public static String PACKAGE_BASE;
 
@@ -48,6 +51,8 @@ public class Constants {
     public static String PATH_ENUMS;
 
     public static String PATH_MAPPER;
+
+    public static String PATH_MAPPER_XML;
 
     public static String AUTHER;
 
@@ -71,28 +76,21 @@ public class Constants {
         SUFFIX_MAPPER = PropertiesUtils.getString("suffix.mapper");
 
         PACKAGE_BASE = PropertiesUtils.getString("package.base");
-
         PACKAGE_PO = PACKAGE_BASE + "." + PropertiesUtils.getString("package.po");
-
         PACKAGE_QUERY = PACKAGE_BASE + "." + PropertiesUtils.getString("package.query");
-
         PACKAGE_UTILS = PACKAGE_BASE + '.' + PropertiesUtils.getString("package.utils");
-
         PACKAGE_ENUMS = PACKAGE_BASE + "." + PropertiesUtils.getString("package.enums");
-
         PACKAGE_MAPPER = PACKAGE_BASE + "." + PropertiesUtils.getString("package.mapper");
 
         PATH_BASE = PropertiesUtils.getString("path.base");
-
-        PATH_PO = PATH_BASE + "/" + PACKAGE_PO.replace(".", "/");
-
-        PATH_QUERY = PATH_BASE + "/" + PACKAGE_QUERY.replace(".", "/");
-
-        PATH_UTILS = PATH_BASE + "/" + PACKAGE_UTILS.replace(".", "/");
-
-        PATH_ENUMS = PATH_BASE + "/" + PACKAGE_ENUMS.replace(".", "/");
-
-        PATH_MAPPER = PATH_BASE + "/" + PACKAGE_MAPPER.replace(".", "/");
+        PATH_JAVA = PATH_BASE + "java";
+        PATH_RESOURCES = PATH_BASE + "resources";
+        PATH_PO = PATH_JAVA + "/" + PACKAGE_PO.replace(".", "/");
+        PATH_QUERY = PATH_JAVA + "/" + PACKAGE_QUERY.replace(".", "/");
+        PATH_UTILS = PATH_JAVA + "/" + PACKAGE_UTILS.replace(".", "/");
+        PATH_ENUMS = PATH_JAVA + "/" + PACKAGE_ENUMS.replace(".", "/");
+        PATH_MAPPER = PATH_JAVA + "/" + PACKAGE_MAPPER.replace(".", "/");
+        PATH_MAPPER_XML = PATH_RESOURCES + "/" + PropertiesUtils.getString("package.mapper").replace(".", "/");
     }
 
     public final static String[] SQL_DATA_TIME_TYPES = new String[]{"datetime", "timestamp"};

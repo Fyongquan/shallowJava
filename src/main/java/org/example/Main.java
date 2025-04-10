@@ -15,6 +15,7 @@ public class Main {
             BuildPo.execute(tableInfo);
             BuildQuery.execute(tableInfo);
             BuildMapper.execute(tableInfo);
+            BuildMapperXml.execute(tableInfo);
         }
     }
 }
