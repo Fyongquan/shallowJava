@@ -19,11 +19,15 @@ public class BuildMapperXml {
 
     private static final String BASE_COLUMN_LIST = "base_column_list";
 
+    private static final String QUERY_CONDITION = "query_condition";
+
     private static final String BASE_QUERY_CONDITION = "base_query_condition";
 
     private static final String BASE_QUERY_CONDITION_EXTEND = "base_query_condition_extend";
 
     private static final String BASE_CONDITION = "base_condition";
+
+    private static final String BASE_RESULT_MAP = "base_result_map";
 
     public static void execute(TableInfo tableInfo) {
         File folder = new File(Constants.PATH_MAPPER_XML);
@@ -184,7 +188,7 @@ public class BuildMapperXml {
             //扩展的查询条件
             bw.write("\t<!-- 扩展的查询条件 -->");
             bw.newLine();
-            bw.write("\t<sql id=\"query_condition\">");
+            bw.write("\t<sql id=\"" + QUERY_CONDITION + "\">");
             bw.newLine();
             bw.write("\t\t<where>");
             bw.newLine();
@@ -198,51 +202,30 @@ public class BuildMapperXml {
             bw.newLine();
             bw.newLine();
 
-//            //通用条件列
-//            bw.write("\t<!-- 通用条件列 -->");
-//            bw.newLine();
-//            bw.write("\t<sql id=\"" + BASE_CONDITION + "\">");
-//            bw.newLine();
-//            bw.write("\t\t<where>");
-//            bw.newLine();
-//            bw.write("\t\t\t<include refid=\"base_condition_field\"/>");
-//            bw.newLine();
-//            bw.write("\t\t</where>");
-//            bw.newLine();
-//            bw.write("\t</sql>");
-//            bw.newLine();
-//
-//            //通用查询条件列
-//            bw.write("\t<!-- 通用查询条件列 -->");
-//            bw.newLine();
-//            bw.write("\t<sql id=\"" + BASE_QUERY_CONDITION + "\">");
-//            bw.newLine();
-//            bw.write("\t\t<where>");
-//            bw.newLine();
-//            bw.write("\t\t\t<include refid=\"base_condition_field\"/>");
-//            bw.newLine();
-//            for (FieldInfo fieldInfo : tableInfo.getFieldExtendList()) {
-//                String andWhere = null;
-//                if (ArrayUtils.contains(Constants.SQL_STRING_TYPE, fieldInfo.getSqlType())) {
-//                    andWhere = "\t\t\t\tAND " + fieldInfo.getFieldName() + " LIKE CONCAT('%',#{query." + fieldInfo.getPropertyName() + "},'%')";
-//                }else if(ArrayUtils.contains(Constants.SQL_DATA_TIME_TYPES, fieldInfo.getSqlType()) || ArrayUtils.contains(Constants.SQL_DATE_TYPES, fieldInfo.getSqlType())){
-//                    if(fieldInfo.getPropertyName().endsWith(Constants.SUFFIX_BEAN_QUERY_DATE_START)){
-//                        andWhere = "\t\t\t\t<![CDATA[ AND " + fieldInfo.getFieldName() + " >= str_to_date(#{query." + fieldInfo.getPropertyName() + "}, '%Y-%m-%d') ]]>";
-//                    }else{
-//                        andWhere = "\t\t\t\t<![CDATA[ AND " + fieldInfo.getFieldName() + " < DATE_ADD(str_to_date(#{query." + fieldInfo.getPropertyName() + "}, '%Y-%m-%d'), INTERVAL 1 DAY) ]]>";
-//                    }
-//                }
-//                bw.write("\t\t\t<if test=\"query." + fieldInfo.getPropertyName() + " != null and query." + fieldInfo.getPropertyName() + " !=''\">");
-//                bw.newLine();
-//                bw.write(andWhere);
-//                bw.newLine();
-//                bw.write("\t\t\t</if>");
-//                bw.newLine();
-//            }
-//            bw.write("\t\t</where>");
-//            bw.newLine();
-//            bw.write("\t</sql>");
-//            bw.newLine();
+            //查询列表
+            bw.write("\t<!-- 查询列表 -->");
+            bw.newLine();
+            bw.write("\t<select id=\"selectList\" resultMap=\"" + BASE_RESULT_MAP + "\">");
+            bw.newLine();
+            bw.write("\t\tSELECT <include refid=\"" + BASE_COLUMN_LIST + "\"/> FROM " + tableInfo.getTableName() + " <include refid=\"" + QUERY_CONDITION + "\"/>");
+            bw.newLine();
+            bw.write("\t\t<if test=\"query.orderBy!=null\"> order by ${query.orderBy} </if>");
+            bw.newLine();
+            bw.write("\t\t<if test=\"query.simplePage!=null\"> limit #{query.simplePage.start},#{query.simplePage.end} </if>");
+            bw.newLine();
+            bw.write("\t</select>");
+            bw.newLine();
+            bw.newLine();
+
+            //查询数量
+            bw.write("\t<!-- 查询数量 -->");
+            bw.newLine();
+            bw.write("\t<select id=\"selectCount\" resultType=\"java.lang.Long\">");
+            bw.newLine();
+            bw.write("\t\tSELECT COUNT(1) FROM " + tableInfo.getTableName() + " <include refid=\"" + QUERY_CONDITION + "\"/>");
+            bw.newLine();
+            bw.write("\t</select>");
+            bw.newLine();
 
             bw.write("</mapper>");
             bw.newLine();
