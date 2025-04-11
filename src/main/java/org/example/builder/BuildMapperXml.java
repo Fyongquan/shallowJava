@@ -4,8 +4,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.example.bean.Constants;
 import org.example.bean.FieldInfo;
 import org.example.bean.TableInfo;
-import org.example.utils.DateUtils;
-import org.example.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +16,14 @@ import java.util.Map;
  */
 public class BuildMapperXml {
     public static final Logger logger = LoggerFactory.getLogger(BuildPo.class);
+
+    private static final String BASE_COLUMN_LIST = "base_column_list";
+
+    private static final String BASE_QUERY_CONDITION = "base_query_condition";
+
+    private static final String BASE_QUERY_CONDITION_EXTEND = "base_query_condition_extend";
+
+    private static final String BASE_CONDITION = "base_condition";
 
     public static void execute(TableInfo tableInfo) {
         File folder = new File(Constants.PATH_MAPPER_XML);
@@ -38,8 +44,205 @@ public class BuildMapperXml {
             bw.newLine();
             bw.write("<mapper namespace=\"" + Constants.PACKAGE_MAPPER + "." + className + "\">");
             bw.newLine();
+            bw.newLine();
+
+            bw.write("\t<!-- 实体映射 -->");
+            bw.newLine();
+            String poClass = Constants.PACKAGE_PO + "." + tableInfo.getBeanName();
+            bw.write("\t<resultMap id=\"base_result_map\" type=\"" + poClass + "\">");
+            bw.newLine();
+
+            FieldInfo idField = null;
+            Map<String, List<FieldInfo>> key = tableInfo.getKeyIndexMap();
+            for (Map.Entry<String, List<FieldInfo>> entry : key.entrySet()) {
+                if ("PRIMARY".equals(entry.getKey())) {
+                    List<FieldInfo> fieldInfoList = entry.getValue();
+                    if (fieldInfoList.size() == 1) {
+                        idField = fieldInfoList.get(0);
+                        break;
+                    }
+                }
+            }
+
+            List<FieldInfo> fieldList = tableInfo.getFieldList();
+            for (FieldInfo fieldInfo : fieldList) {
+                String beanName = BuildTable.processFiled(fieldInfo.getFieldName(), false);
+
+                bw.write("\t\t<!-- " + fieldInfo.getComment() + " -->");
+                bw.newLine();
+
+                if (idField != null && idField.getFieldName().equals(fieldInfo.getFieldName())) {
+                    bw.write("\t\t<id property=\"" + beanName + "\" column=\"" + fieldInfo.getFieldName() + "\"/>");
+                } else {
+                    bw.write("\t\t<result property=\"" + beanName + "\" column=\"" + fieldInfo.getFieldName() + "\"/>");
+                }
+                bw.newLine();
+            }
 
 
+            bw.write("\t</resultMap>");
+            bw.newLine();
+            bw.newLine();
+
+            //通用查询结果列
+            bw.write("\t<!-- 通用查询结果列 -->");
+            bw.newLine();
+            bw.write("\t<sql id=\"" + BASE_COLUMN_LIST + "\">");
+            bw.newLine();
+
+            boolean index1 = false;
+            for (FieldInfo fieldInfo : fieldList) {
+                if (index1) {
+                    bw.write(", " + fieldInfo.getFieldName());
+                } else {
+                    bw.write("\t\t" + fieldInfo.getFieldName());
+                    index1 = true;
+                }
+            }
+            bw.newLine();
+            bw.write("\t</sql>");
+            bw.newLine();
+            bw.newLine();
+
+            //基础查询条件
+            bw.write("\t<!-- 基础查询条件 -->");
+            bw.newLine();
+            bw.write("\t<sql id=\"" + BASE_QUERY_CONDITION + "\">");
+            bw.newLine();
+
+            for (FieldInfo fieldInfo : fieldList) {
+                String beanName = BuildTable.processFiled(fieldInfo.getFieldName(), false);
+
+                if (ArrayUtils.contains(Constants.SQL_DATA_TIME_TYPES, fieldInfo.getSqlType())) {
+                    bw.write("\t\t<if test=\"query." + beanName + " != null and query." + beanName + " != ''\">");
+                    bw.newLine();
+                    bw.write("\t\t\t<![CDATA[ ");
+                    bw.newLine();
+                    bw.write("\t\t\tAND " + fieldInfo.getFieldName() + " >= str_to_date(#{query." + beanName + "}, '%Y-%m-%d')");
+                    bw.newLine();
+                    bw.write("\t\t\tAND " + fieldInfo.getFieldName() + " < str_to_date(#{query." + beanName + "}, '%Y-%m-%d') + INTERVAL 1 DAY");
+                    bw.newLine();
+                    bw.write("\t\t\t]]>");
+                    bw.newLine();
+                    bw.write("\t\t</if>");
+                    bw.newLine();
+                } else if (ArrayUtils.contains(Constants.SQL_DATE_TYPES, fieldInfo.getSqlType())) {
+                    bw.write("\t\t<if test=\"query." + beanName + " != null and query." + beanName + " != ''\">");
+                    bw.newLine();
+                    bw.write("\t\t\tAND " + fieldInfo.getFieldName() + " = str_to_date(#{query." + beanName + "}, '%Y-%m-%d')");
+                    bw.newLine();
+                    bw.write("\t\t</if>");
+                    bw.newLine();
+                } else if (ArrayUtils.contains(Constants.SQL_STRING_TYPE, fieldInfo.getSqlType())) {
+                    bw.write("\t\t<if test=\"query." + beanName + " != null and query." + beanName + " != ''\">");
+                    bw.newLine();
+                    bw.write("\t\t\tAND " + fieldInfo.getFieldName() + " = #{query." + beanName + "}");
+                    bw.newLine();
+                    bw.write("\t\t</if>");
+                    bw.newLine();
+                } else {
+                    bw.write("\t\t<if test=\"query." + beanName + " != null\">");
+                    bw.newLine();
+                    bw.write("\t\t\tAND " + fieldInfo.getFieldName() + " = #{query." + beanName + "}");
+                    bw.newLine();
+                    bw.write("\t\t</if>");
+                    bw.newLine();
+                }
+
+            }
+            bw.write("\t</sql>");
+            bw.newLine();
+            bw.newLine();
+
+
+            //扩展的查询条件
+            bw.write("\t<!-- 扩展的查询条件 -->");
+            bw.newLine();
+            bw.write("\t<sql id=\"" + BASE_QUERY_CONDITION_EXTEND + "\">");
+            bw.newLine();
+            for (FieldInfo fieldInfo : tableInfo.getFieldExtendList()) {
+                String andWhere = null;
+                if (ArrayUtils.contains(Constants.SQL_STRING_TYPE, fieldInfo.getSqlType())) {
+                    andWhere = "\t\t\tAND " + fieldInfo.getFieldName() + " LIKE CONCAT('%',#{query." + fieldInfo.getPropertyName() + "},'%')";
+                }else if(ArrayUtils.contains(Constants.SQL_DATA_TIME_TYPES, fieldInfo.getSqlType()) || ArrayUtils.contains(Constants.SQL_DATE_TYPES, fieldInfo.getSqlType())){
+                    if(fieldInfo.getPropertyName().endsWith(Constants.SUFFIX_BEAN_QUERY_DATE_START)){
+                        andWhere = "\t\t\t<![CDATA[ AND " + fieldInfo.getFieldName() + " >= str_to_date(#{query." + fieldInfo.getPropertyName() + "}, '%Y-%m-%d') ]]>";
+                    }else{
+                        andWhere = "\t\t\t<![CDATA[ AND " + fieldInfo.getFieldName() + " < DATE_ADD(str_to_date(#{query." + fieldInfo.getPropertyName() + "}, '%Y-%m-%d'), INTERVAL 1 DAY) ]]>";
+                    }
+                }
+                bw.write("\t\t<if test=\"query." + fieldInfo.getPropertyName() + " != null and query." + fieldInfo.getPropertyName() + " !=''\">");
+                bw.newLine();
+                bw.write(andWhere);
+                bw.newLine();
+                bw.write("\t\t</if>");
+                bw.newLine();
+            }
+            bw.write("\t</sql>");
+            bw.newLine();
+
+            //扩展的查询条件
+            bw.write("\t<!-- 扩展的查询条件 -->");
+            bw.newLine();
+            bw.write("\t<sql id=\"query_condition\">");
+            bw.newLine();
+            bw.write("\t\t<where>");
+            bw.newLine();
+            bw.write("\t\t\t<include refid=\"" + BASE_QUERY_CONDITION + "\"/>");
+            bw.newLine();
+            bw.write("\t\t\t<include refid=\"" + BASE_QUERY_CONDITION_EXTEND + "\"/>");
+            bw.newLine();
+            bw.write("\t\t</where>");
+            bw.newLine();
+            bw.write("\t</sql>");
+            bw.newLine();
+            bw.newLine();
+
+//            //通用条件列
+//            bw.write("\t<!-- 通用条件列 -->");
+//            bw.newLine();
+//            bw.write("\t<sql id=\"" + BASE_CONDITION + "\">");
+//            bw.newLine();
+//            bw.write("\t\t<where>");
+//            bw.newLine();
+//            bw.write("\t\t\t<include refid=\"base_condition_field\"/>");
+//            bw.newLine();
+//            bw.write("\t\t</where>");
+//            bw.newLine();
+//            bw.write("\t</sql>");
+//            bw.newLine();
+//
+//            //通用查询条件列
+//            bw.write("\t<!-- 通用查询条件列 -->");
+//            bw.newLine();
+//            bw.write("\t<sql id=\"" + BASE_QUERY_CONDITION + "\">");
+//            bw.newLine();
+//            bw.write("\t\t<where>");
+//            bw.newLine();
+//            bw.write("\t\t\t<include refid=\"base_condition_field\"/>");
+//            bw.newLine();
+//            for (FieldInfo fieldInfo : tableInfo.getFieldExtendList()) {
+//                String andWhere = null;
+//                if (ArrayUtils.contains(Constants.SQL_STRING_TYPE, fieldInfo.getSqlType())) {
+//                    andWhere = "\t\t\t\tAND " + fieldInfo.getFieldName() + " LIKE CONCAT('%',#{query." + fieldInfo.getPropertyName() + "},'%')";
+//                }else if(ArrayUtils.contains(Constants.SQL_DATA_TIME_TYPES, fieldInfo.getSqlType()) || ArrayUtils.contains(Constants.SQL_DATE_TYPES, fieldInfo.getSqlType())){
+//                    if(fieldInfo.getPropertyName().endsWith(Constants.SUFFIX_BEAN_QUERY_DATE_START)){
+//                        andWhere = "\t\t\t\t<![CDATA[ AND " + fieldInfo.getFieldName() + " >= str_to_date(#{query." + fieldInfo.getPropertyName() + "}, '%Y-%m-%d') ]]>";
+//                    }else{
+//                        andWhere = "\t\t\t\t<![CDATA[ AND " + fieldInfo.getFieldName() + " < DATE_ADD(str_to_date(#{query." + fieldInfo.getPropertyName() + "}, '%Y-%m-%d'), INTERVAL 1 DAY) ]]>";
+//                    }
+//                }
+//                bw.write("\t\t\t<if test=\"query." + fieldInfo.getPropertyName() + " != null and query." + fieldInfo.getPropertyName() + " !=''\">");
+//                bw.newLine();
+//                bw.write(andWhere);
+//                bw.newLine();
+//                bw.write("\t\t\t</if>");
+//                bw.newLine();
+//            }
+//            bw.write("\t\t</where>");
+//            bw.newLine();
+//            bw.write("\t</sql>");
+//            bw.newLine();
 
             bw.write("</mapper>");
             bw.newLine();

@@ -15,6 +15,10 @@ public class TableInfo {
     private String comment;
     // 定义一个私有List集合，用于存储字段信息（FieldInfo对象）
     private List<FieldInfo> fieldList;
+    /**
+     * 扩展字段信息
+     */
+    private List<FieldInfo> fieldExtendList;
     // 定义一个私有Map集合，用于存储键索引映射关系，键为字符串，值为FieldInfo对象的List集合
     // 使用LinkedHashMap保证插入顺序
     private Map<String, List<FieldInfo>> keyIndexMap = new LinkedHashMap();
@@ -98,5 +102,13 @@ public class TableInfo {
 
     public void setHaveBigDecimal(Boolean haveBigDecimal) {
         this.haveBigDecimal = haveBigDecimal;
+    }
+
+    public List<FieldInfo> getFieldExtendList() {
+        return fieldExtendList;
+    }
+
+    public void setFieldExtendList(List<FieldInfo> fieldExtendList) {
+        this.fieldExtendList = fieldExtendList;
     }
 }

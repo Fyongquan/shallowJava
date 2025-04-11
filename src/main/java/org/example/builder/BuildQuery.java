@@ -41,7 +41,6 @@ public class BuildQuery {
             if (tableInfo.getHaveDate()) {
                 bw.write("import java.time.LocalDate;");
                 bw.newLine();
-
             }
             if (tableInfo.getHaveBigDecimal()) {
                 bw.write("import java.math.BigDecimal;");

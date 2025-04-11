@@ -106,6 +106,8 @@ public class BuildTable {
         ResultSet fieldResult = null;
 
         List<FieldInfo> fieldInfoList = new ArrayList<>();
+
+        List<FieldInfo> fieldExtendList = new ArrayList<>();
         try {
             ps = conn.prepareStatement(String.format(SQL_SHOW_TABLE_FIELDS, tableInfo.getTableName()));
             fieldResult = ps.executeQuery();
@@ -143,8 +145,35 @@ public class BuildTable {
                 if (ArrayUtils.contains(Constants.SQL_DECIMAL_TYPE, type)) {
                     tableInfo.setHaveBigDecimal(true);
                 }
+
+                if(ArrayUtils.contains(Constants.SQL_STRING_TYPE, type)){
+                    FieldInfo fuzzyField = new FieldInfo();
+                    fuzzyField.setJavaType(fieldInfo.getJavaType());
+                    fuzzyField.setPropertyName(fieldInfo.getPropertyName() + Constants.SUFFIX_BEAN_QUERY_FUZZY);
+                    fuzzyField.setFieldName(fieldInfo.getFieldName());
+                    fuzzyField.setSqlType(type);
+                    fieldExtendList.add(fuzzyField);
+                }
+
+                if(ArrayUtils.contains(Constants.SQL_DATA_TIME_TYPES, type) || ArrayUtils.contains(Constants.SQL_DATE_TYPES, type)){
+                    FieldInfo timeStartField = new FieldInfo();
+                    timeStartField.setJavaType("String");
+                    timeStartField.setPropertyName(fieldInfo.getPropertyName() + Constants.SUFFIX_BEAN_QUERY_DATE_START);
+                    timeStartField.setFieldName(fieldInfo.getFieldName());
+                    timeStartField.setSqlType(type);
+                    fieldExtendList.add(timeStartField);
+
+                    FieldInfo timeEndField = new FieldInfo();
+                    timeEndField.setJavaType("String");
+                    timeEndField.setPropertyName(fieldInfo.getPropertyName() + Constants.SUFFIX_BEAN_QUERY_DATE_END);
+                    timeEndField.setFieldName(fieldInfo.getFieldName());
+                    timeEndField.setSqlType(type);
+                    fieldExtendList.add(timeEndField);
+                }
             }
+
             tableInfo.setFieldList(fieldInfoList);
+            tableInfo.setFieldExtendList(fieldExtendList);
         } catch (SQLException e) {
             logger.error("读取表失败", e);
         } finally {
@@ -214,7 +243,7 @@ public class BuildTable {
         return fieldInfoList;
     }
 
-    private static String processFiled(String field, Boolean uperCaseFirstLetter) {
+    public static String processFiled(String field, Boolean uperCaseFirstLetter) {
         StringBuffer sb = new StringBuffer();
         String[] fields = field.split("_");
 
