@@ -122,9 +122,9 @@ public class BuildMapperXml {
                     bw.newLine();
                     bw.write("\t\t\t<![CDATA[ ");
                     bw.newLine();
-                    bw.write("\t\t\tAND " + fieldInfo.getFieldName() + " >= str_to_date(#{query." + beanName + "}, '%Y-%m-%d')");
+                    bw.write("\t\t\tAND " + fieldInfo.getFieldName() + " >= #{query." + beanName + "}");
                     bw.newLine();
-                    bw.write("\t\t\tAND " + fieldInfo.getFieldName() + " < str_to_date(#{query." + beanName + "}, '%Y-%m-%d') + INTERVAL 1 DAY");
+                    bw.write("\t\t\tAND " + fieldInfo.getFieldName() + " < DATE_ADD(#{query." + beanName + "}, INTERVAL 1 DAY)");
                     bw.newLine();
                     bw.write("\t\t\t]]>");
                     bw.newLine();
@@ -133,7 +133,7 @@ public class BuildMapperXml {
                 } else if (ArrayUtils.contains(Constants.SQL_DATE_TYPES, fieldInfo.getSqlType())) {
                     bw.write("\t\t<if test=\"query." + beanName + " != null and query." + beanName + " != ''\">");
                     bw.newLine();
-                    bw.write("\t\t\tAND " + fieldInfo.getFieldName() + " = str_to_date(#{query." + beanName + "}, '%Y-%m-%d')");
+                    bw.write("\t\t\tAND " + fieldInfo.getFieldName() + " = #{query." + beanName + "}");
                     bw.newLine();
                     bw.write("\t\t</if>");
                     bw.newLine();
@@ -168,7 +168,13 @@ public class BuildMapperXml {
                 String andWhere = null;
                 if (ArrayUtils.contains(Constants.SQL_STRING_TYPE, fieldInfo.getSqlType())) {
                     andWhere = "\t\t\tAND " + fieldInfo.getFieldName() + " LIKE CONCAT('%',#{query." + fieldInfo.getPropertyName() + "},'%')";
-                }else if(ArrayUtils.contains(Constants.SQL_DATA_TIME_TYPES, fieldInfo.getSqlType()) || ArrayUtils.contains(Constants.SQL_DATE_TYPES, fieldInfo.getSqlType())){
+                }else if(ArrayUtils.contains(Constants.SQL_DATA_TIME_TYPES, fieldInfo.getSqlType())){
+                    if(fieldInfo.getPropertyName().endsWith(Constants.SUFFIX_BEAN_QUERY_DATE_START)){
+                        andWhere = "\t\t\t<![CDATA[ AND " + fieldInfo.getFieldName() + " >= str_to_date(#{query." + fieldInfo.getPropertyName() + "}, '%Y-%m-%d %H:%i:%s') ]]>";
+                    }else{
+                        andWhere = "\t\t\t<![CDATA[ AND " + fieldInfo.getFieldName() + " < str_to_date(#{query." + fieldInfo.getPropertyName() + "}, '%Y-%m-%d %H:%i:%s') ]]>";
+                    }
+                }else if(ArrayUtils.contains(Constants.SQL_DATE_TYPES, fieldInfo.getSqlType())){
                     if(fieldInfo.getPropertyName().endsWith(Constants.SUFFIX_BEAN_QUERY_DATE_START)){
                         andWhere = "\t\t\t<![CDATA[ AND " + fieldInfo.getFieldName() + " >= str_to_date(#{query." + fieldInfo.getPropertyName() + "}, '%Y-%m-%d') ]]>";
                     }else{

@@ -36,14 +36,14 @@ public class BuildMapper {
             bw.newLine();
             bw.newLine();
 
-            bw.write("import io.lettuce.core.dynamic.annotation.Param;");
+            bw.write("import org.apache.ibatis.annotations.Param;");
             bw.newLine();
             bw.newLine();
 
             //构建类注释
             BuildComment.createClassComment(bw, tableInfo.getComment() + "Mapper");
 
-            bw.write("public interface " + className + "<T, P> extends BaseMapper {");
+            bw.write("public interface " + className + "<T, P> extends BaseMapper<T, P> {");
             bw.newLine();
 
             Map<String, List<FieldInfo>> keyIndexMap = tableInfo.getKeyIndexMap();

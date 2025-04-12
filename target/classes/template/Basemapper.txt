@@ -1,4 +1,4 @@
-import io.lettuce.core.dynamic.annotation.Param;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -9,28 +9,28 @@ public interface BaseMapper<T, P> {
      * @param t
      * @return
      */
-    Integer insert(@Param("bean") T t);
+    Long insert(@Param("bean") T t);
 
     /**
      * insertOrUpdate：(插入或更新一条数据)，<br/>
      * @param t
      * @return
      */
-    Integer insertOrUpdate(@Param("bean") T t);
+    Long insertOrUpdate(@Param("bean") T t);
 
     /**
      * insertBatch：(批量插入数据)，<br/>
      * @param list
      * @return
      */
-    Integer insertBatch(@Param("beans") List<T> list);
+    Long insertBatch(@Param("beans") List<T> list);
 
     /**
      * insertOrUpdateBatch：(批量插入或更新数据)，<br/>
      * @param list
      * @return
      */
-    Integer insertOrUpdateBatch(@Param("beans") List<T> list);
+    Long insertOrUpdateBatch(@Param("beans") List<T> list);
 
     /**
      * selectList：(根据参数查询数据)，<br/>
@@ -44,5 +44,5 @@ public interface BaseMapper<T, P> {
      * @param p
      * @return
      */
-    Integer selectCount(@Param("query") P p);
+    Long selectCount(@Param("query") P p);
 }
