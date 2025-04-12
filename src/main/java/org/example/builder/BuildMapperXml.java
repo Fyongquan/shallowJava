@@ -507,15 +507,16 @@ public class BuildMapperXml {
                 bw.newLine();
                 bw.newLine();
 
-//                //添加注释
-//                BuildComment.createFieldComment(bw, "根据" + commentParams + "更新");
-//                bw.newLine();
-//                bw.newLine();
-//
-//                //添加注释
-//                BuildComment.createFieldComment(bw, "根据" + commentParams + "删除");
-//                bw.newLine();
-//                bw.newLine();
+                //添加注释
+                bw.write("\t<!-- \"根据\"" + commentParams + "\"删除\" -->");
+                bw.newLine();
+                bw.write("\t<delete id=\"selectBy" + methodName + "\">");
+                bw.newLine();
+                bw.write("\t\tDELETE FROM " + tableInfo.getTableName() + " where " + params);
+                bw.newLine();
+                bw.write("\t</delete>");
+                bw.newLine();
+                bw.newLine();
             }
 
 
