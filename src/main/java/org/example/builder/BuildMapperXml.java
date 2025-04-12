@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -118,20 +119,18 @@ public class BuildMapperXml {
                 String beanName = BuildTable.processFiled(fieldInfo.getFieldName(), false);
 
                 if (ArrayUtils.contains(Constants.SQL_DATA_TIME_TYPES, fieldInfo.getSqlType())) {
-                    bw.write("\t\t<if test=\"query." + beanName + " != null and query." + beanName + " != ''\">");
+                    bw.write("\t\t<if test=\"query." + beanName + " != null \">");
                     bw.newLine();
                     bw.write("\t\t\t<![CDATA[ ");
                     bw.newLine();
-                    bw.write("\t\t\tAND " + fieldInfo.getFieldName() + " >= #{query." + beanName + "}");
-                    bw.newLine();
-                    bw.write("\t\t\tAND " + fieldInfo.getFieldName() + " < DATE_ADD(#{query." + beanName + "}, INTERVAL 1 DAY)");
+                    bw.write("\t\t\tAND " + fieldInfo.getFieldName() + " = #{query." + beanName + "}");
                     bw.newLine();
                     bw.write("\t\t\t]]>");
                     bw.newLine();
                     bw.write("\t\t</if>");
                     bw.newLine();
                 } else if (ArrayUtils.contains(Constants.SQL_DATE_TYPES, fieldInfo.getSqlType())) {
-                    bw.write("\t\t<if test=\"query." + beanName + " != null and query." + beanName + " != ''\">");
+                    bw.write("\t\t<if test=\"query." + beanName + " != null \">");
                     bw.newLine();
                     bw.write("\t\t\tAND " + fieldInfo.getFieldName() + " = #{query." + beanName + "}");
                     bw.newLine();
@@ -232,6 +231,137 @@ public class BuildMapperXml {
             bw.newLine();
             bw.write("\t</select>");
             bw.newLine();
+
+            //单条插入
+            bw.write("\t<!-- 插入 （匹配有值的字段） -->");
+            bw.newLine();
+            bw.write("\t<insert id=\"insert\" parameterType=\"" + Constants.PACKAGE_PO + "." + tableInfo.getBeanName() + "\">");
+            bw.newLine();
+            //获取自增长字段
+            FieldInfo autoIncrementField = null;
+            for (FieldInfo fieldInfo : tableInfo.getFieldList()) {
+                if(fieldInfo.getIsAutoIncrement() != null && fieldInfo.getIsAutoIncrement()){
+                    autoIncrementField = fieldInfo;
+                    break;
+                }
+            }
+            if(autoIncrementField != null){
+                bw.write("\t\t<selectKey keyProperty=\"bean." + autoIncrementField.getPropertyName() + "\" order=\"AFTER\" resultType=\"" + autoIncrementField.getJavaType() + "\">");
+                bw.newLine();
+                bw.write("\t\t\tSELECT LAST_INSERT_ID()");
+                bw.newLine();
+                bw.write("\t\t</selectKey>");
+                bw.newLine();
+            }
+            bw.write("\t\tINSERT INTO " + tableInfo.getTableName() + " ");
+            bw.newLine();
+            bw.write("\t\t<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\" >");
+            bw.newLine();
+            for (FieldInfo fieldInfo : tableInfo.getFieldList()) {
+                if(fieldInfo.getIsAutoIncrement() != null && fieldInfo.getIsAutoIncrement()){
+                    continue;
+                }
+                bw.write("\t\t\t<if test=\"bean." + fieldInfo.getPropertyName() + " != null\">");
+                bw.newLine();
+                bw.write("\t\t\t\t" + fieldInfo.getFieldName() + ",");
+                bw.newLine();
+                bw.write("\t\t\t</if>");
+                bw.newLine();
+            }
+            bw.write("\t\t</trim>");
+            bw.newLine();
+
+            bw.write("\t\t<trim prefix=\"values (\" suffix=\")\" suffixOverrides=\",\" >");
+            bw.newLine();
+            for (FieldInfo fieldInfo : tableInfo.getFieldList()) {
+                if(fieldInfo.getIsAutoIncrement() != null && fieldInfo.getIsAutoIncrement()){
+                    continue;
+                }
+                bw.write("\t\t\t<if test=\"bean." + fieldInfo.getPropertyName() + " != null\">");
+                bw.newLine();
+                bw.write("\t\t\t\t#{bean." + fieldInfo.getPropertyName() + "},");
+                bw.newLine();
+                bw.write("\t\t\t</if>");
+                bw.newLine();
+            }
+            bw.write("\t\t</trim>");
+            bw.newLine();
+            bw.write("\t</insert>");
+            bw.newLine();
+
+            //单条插入或者更新（匹配有值的字段）
+            bw.write("\t<!-- 单条插入或者更新 （匹配有值的字段） -->");
+            bw.newLine();
+            bw.write("\t<insert id=\"insertOrUpdate\" parameterType=\"" + Constants.PACKAGE_PO + "." + tableInfo.getBeanName() + "\">");
+            bw.newLine();
+            bw.write("\t\tINSERT INTO " + tableInfo.getTableName() + " ");
+            bw.newLine();
+            bw.write("\t\t<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\" >");
+            bw.newLine();
+            for (FieldInfo fieldInfo : tableInfo.getFieldList()) {
+//                if(fieldInfo.getIsAutoIncrement() != null && fieldInfo.getIsAutoIncrement()){
+//                    continue;
+//                }
+                bw.write("\t\t\t<if test=\"bean." + fieldInfo.getPropertyName() + "!= null\">");
+                bw.newLine();
+                bw.write("\t\t\t\t" + fieldInfo.getFieldName() + ",");
+                bw.newLine();
+                bw.write("\t\t\t</if>");
+                bw.newLine();
+            }
+            bw.write("\t\t</trim>");
+            bw.newLine();
+            bw.write("\t\t<trim prefix=\"values (\" suffix=\")\" suffixOverrides=\",\" >");
+            bw.newLine();
+            for (FieldInfo fieldInfo : tableInfo.getFieldList()) {
+//                if(fieldInfo.getIsAutoIncrement() != null && fieldInfo.getIsAutoIncrement()){
+//                    continue;
+//                }
+                bw.write("\t\t\t<if test=\"bean." + fieldInfo.getPropertyName() + "!= null\">");
+                bw.newLine();
+                bw.write("\t\t\t\t#{bean." + fieldInfo.getPropertyName() + "},");
+                bw.newLine();
+                bw.write("\t\t\t</if>");
+                bw.newLine();
+            }
+            bw.write("\t\t</trim>");
+            bw.newLine();
+            bw.write("\t\t#如果违反了表中定义的任何唯一键约束（如主键或唯一索引），则触发以下更新语句");
+            bw.newLine();
+
+            //keyTempMap标注唯一索引，在更新中去除这些字段
+            Map<String, String> keyTempMap = new HashMap<>();
+            for (Map.Entry<String, List<FieldInfo>> entry : key.entrySet()) {
+                List<FieldInfo> fieldInfoList = entry.getValue();
+                for(FieldInfo item : fieldInfoList){
+                    keyTempMap.put(item.getFieldName(), item.getFieldName());
+                }
+            }
+
+            bw.write("\t\tON DUPLICATE KEY UPDATE");
+            bw.newLine();
+            bw.write("\t\t<trim prefix=\"\" suffix=\"\" suffixOverrides=\",\" >");
+            bw.newLine();
+            for (FieldInfo fieldInfo : tableInfo.getFieldList()) {
+                //去除唯一索引的更新
+                if(keyTempMap.get(fieldInfo.getFieldName()) != null){
+                    continue;
+                }
+                bw.write("\t\t\t<if test=\"bean." + fieldInfo.getPropertyName() + "!= null\">");
+                bw.newLine();
+                bw.write("\t\t\t\t" + fieldInfo.getFieldName() + " = VALUES(" + fieldInfo.getFieldName() + "),");
+                bw.newLine();
+                bw.write("\t\t\t</if>");
+                bw.newLine();
+            }
+            bw.write("\t\t</trim>");
+            bw.newLine();
+            bw.write("\t</insert>");
+            bw.newLine();
+
+
+
+
 
             bw.write("</mapper>");
             bw.newLine();
