@@ -167,16 +167,16 @@ public class BuildMapperXml {
                 String andWhere = null;
                 if (ArrayUtils.contains(Constants.SQL_STRING_TYPE, fieldInfo.getSqlType())) {
                     andWhere = "\t\t\tAND " + fieldInfo.getFieldName() + " LIKE CONCAT('%',#{query." + fieldInfo.getPropertyName() + "},'%')";
-                }else if(ArrayUtils.contains(Constants.SQL_DATA_TIME_TYPES, fieldInfo.getSqlType())){
-                    if(fieldInfo.getPropertyName().endsWith(Constants.SUFFIX_BEAN_QUERY_DATE_START)){
+                } else if (ArrayUtils.contains(Constants.SQL_DATA_TIME_TYPES, fieldInfo.getSqlType())) {
+                    if (fieldInfo.getPropertyName().endsWith(Constants.SUFFIX_BEAN_QUERY_DATE_START)) {
                         andWhere = "\t\t\t<![CDATA[ AND " + fieldInfo.getFieldName() + " >= str_to_date(#{query." + fieldInfo.getPropertyName() + "}, '%Y-%m-%d %H:%i:%s') ]]>";
-                    }else{
+                    } else {
                         andWhere = "\t\t\t<![CDATA[ AND " + fieldInfo.getFieldName() + " < str_to_date(#{query." + fieldInfo.getPropertyName() + "}, '%Y-%m-%d %H:%i:%s') ]]>";
                     }
-                }else if(ArrayUtils.contains(Constants.SQL_DATE_TYPES, fieldInfo.getSqlType())){
-                    if(fieldInfo.getPropertyName().endsWith(Constants.SUFFIX_BEAN_QUERY_DATE_START)){
+                } else if (ArrayUtils.contains(Constants.SQL_DATE_TYPES, fieldInfo.getSqlType())) {
+                    if (fieldInfo.getPropertyName().endsWith(Constants.SUFFIX_BEAN_QUERY_DATE_START)) {
                         andWhere = "\t\t\t<![CDATA[ AND " + fieldInfo.getFieldName() + " >= str_to_date(#{query." + fieldInfo.getPropertyName() + "}, '%Y-%m-%d') ]]>";
-                    }else{
+                    } else {
                         andWhere = "\t\t\t<![CDATA[ AND " + fieldInfo.getFieldName() + " < DATE_ADD(str_to_date(#{query." + fieldInfo.getPropertyName() + "}, '%Y-%m-%d'), INTERVAL 1 DAY) ]]>";
                     }
                 }
@@ -235,17 +235,17 @@ public class BuildMapperXml {
             //单条插入
             bw.write("\t<!-- 插入 （匹配有值的字段） -->");
             bw.newLine();
-            bw.write("\t<insert id=\"insert\" parameterType=\"" + Constants.PACKAGE_PO + "." + tableInfo.getBeanName() + "\">");
+            bw.write("\t<insert id=\"insert\" parameterType=\"" + poClass + "\">");
             bw.newLine();
             //获取自增长字段
             FieldInfo autoIncrementField = null;
             for (FieldInfo fieldInfo : tableInfo.getFieldList()) {
-                if(fieldInfo.getIsAutoIncrement() != null && fieldInfo.getIsAutoIncrement()){
+                if (fieldInfo.getIsAutoIncrement() != null && fieldInfo.getIsAutoIncrement()) {
                     autoIncrementField = fieldInfo;
                     break;
                 }
             }
-            if(autoIncrementField != null){
+            if (autoIncrementField != null) {
                 bw.write("\t\t<selectKey keyProperty=\"bean." + autoIncrementField.getPropertyName() + "\" order=\"AFTER\" resultType=\"" + autoIncrementField.getJavaType() + "\">");
                 bw.newLine();
                 bw.write("\t\t\tSELECT LAST_INSERT_ID()");
@@ -258,7 +258,7 @@ public class BuildMapperXml {
             bw.write("\t\t<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\" >");
             bw.newLine();
             for (FieldInfo fieldInfo : tableInfo.getFieldList()) {
-                if(fieldInfo.getIsAutoIncrement() != null && fieldInfo.getIsAutoIncrement()){
+                if (fieldInfo.getIsAutoIncrement() != null && fieldInfo.getIsAutoIncrement()) {
                     continue;
                 }
                 bw.write("\t\t\t<if test=\"bean." + fieldInfo.getPropertyName() + " != null\">");
@@ -274,7 +274,7 @@ public class BuildMapperXml {
             bw.write("\t\t<trim prefix=\"values (\" suffix=\")\" suffixOverrides=\",\" >");
             bw.newLine();
             for (FieldInfo fieldInfo : tableInfo.getFieldList()) {
-                if(fieldInfo.getIsAutoIncrement() != null && fieldInfo.getIsAutoIncrement()){
+                if (fieldInfo.getIsAutoIncrement() != null && fieldInfo.getIsAutoIncrement()) {
                     continue;
                 }
                 bw.write("\t\t\t<if test=\"bean." + fieldInfo.getPropertyName() + " != null\">");
@@ -292,7 +292,7 @@ public class BuildMapperXml {
             //单条插入或者更新（匹配有值的字段）
             bw.write("\t<!-- 单条插入或者更新 （匹配有值的字段） -->");
             bw.newLine();
-            bw.write("\t<insert id=\"insertOrUpdate\" parameterType=\"" + Constants.PACKAGE_PO + "." + tableInfo.getBeanName() + "\">");
+            bw.write("\t<insert id=\"insertOrUpdate\" parameterType=\"" + poClass + "\">");
             bw.newLine();
             bw.write("\t\tINSERT INTO " + tableInfo.getTableName() + " ");
             bw.newLine();
@@ -333,7 +333,7 @@ public class BuildMapperXml {
             Map<String, String> keyTempMap = new HashMap<>();
             for (Map.Entry<String, List<FieldInfo>> entry : key.entrySet()) {
                 List<FieldInfo> fieldInfoList = entry.getValue();
-                for(FieldInfo item : fieldInfoList){
+                for (FieldInfo item : fieldInfoList) {
                     keyTempMap.put(item.getFieldName(), item.getFieldName());
                 }
             }
@@ -344,7 +344,7 @@ public class BuildMapperXml {
             bw.newLine();
             for (FieldInfo fieldInfo : tableInfo.getFieldList()) {
                 //去除唯一索引的更新
-                if(keyTempMap.get(fieldInfo.getFieldName()) != null){
+                if (keyTempMap.get(fieldInfo.getFieldName()) != null) {
                     continue;
                 }
                 bw.write("\t\t\t<if test=\"bean." + fieldInfo.getPropertyName() + "!= null\">");
@@ -358,8 +358,119 @@ public class BuildMapperXml {
             bw.newLine();
             bw.write("\t</insert>");
             bw.newLine();
+            bw.newLine();
 
+            //添加(批量插入)
+            bw.write("\t<!-- 批量插入 -->");
+            bw.newLine();
+            bw.write("\t<insert id=\"insertBatch\" parameterType=\"" + poClass + "\">");
+            bw.newLine();
+            bw.write("\t\tINSERT INTO " + tableInfo.getTableName());
+            bw.newLine();
+            bw.write("\t\t(");
+            index1 = false;
+            for (FieldInfo fieldInfo : tableInfo.getFieldList()) {
+                if (fieldInfo.getIsAutoIncrement()) {
+                    continue;
+                }
+                if (!index1) {
+                    bw.write(fieldInfo.getFieldName());
+                    index1 = true;
+                } else {
+                    bw.write("," + fieldInfo.getFieldName());
+                }
+            }
+            bw.write(")");
+            bw.newLine();
+            bw.write("\t\tVALUES");
+            bw.newLine();
+            bw.write("\t\t<foreach collection=\"list\" item=\"bean\" index=\"index\" separator=\",\">");
+            bw.newLine();
+            bw.write("\t\t\t(");
+            index1 = false;
+            for (FieldInfo fieldInfo : tableInfo.getFieldList()) {
+                if (fieldInfo.getIsAutoIncrement()) {
+                    continue;
+                }
+                if (!index1) {
+                    bw.write("#{bean." + fieldInfo.getPropertyName() + "}");
+                    index1 = true;
+                } else {
+                    bw.write(",#{bean." + fieldInfo.getPropertyName() + "}");
+                }
+            }
+            bw.write(")");
+            bw.newLine();
+            bw.write("\t\t</foreach>");
+            bw.newLine();
+            bw.write("\t</insert>");
+            bw.newLine();
+            bw.newLine();
 
+            //批量新增或修改 (批量插入)
+            bw.write("\t<!-- 批量新增或修改 (批量插入) -->");
+            bw.newLine();
+            bw.write("\t<insert id=\"insertOrUpdateBatch\" parameterType=\"" + poClass + "\">");
+            bw.newLine();
+            bw.write("\t\tINSERT INTO " + tableInfo.getTableName());
+            bw.newLine();
+            bw.write("\t\t(");
+            index1 = false;
+            for (FieldInfo fieldInfo : tableInfo.getFieldList()) {
+                if (fieldInfo.getIsAutoIncrement()) {
+                    continue;
+                }
+                if (!index1) {
+                    bw.write(fieldInfo.getFieldName());
+                    index1 = true;
+                } else {
+                    bw.write("," + fieldInfo.getFieldName());
+                }
+            }
+            bw.write(")");
+            bw.newLine();
+            bw.write("\t\tVALUES");
+            bw.newLine();
+            bw.write("\t\t<foreach collection=\"list\" item=\"bean\" index=\"index\" separator=\",\">");
+            bw.newLine();
+            bw.write("\t\t\t(");
+            index1 = false;
+            for (FieldInfo fieldInfo : tableInfo.getFieldList()) {
+                if (fieldInfo.getIsAutoIncrement()) {
+                    continue;
+                }
+                if (!index1) {
+                    bw.write("#{bean." + fieldInfo.getPropertyName() + "}");
+                    index1 = true;
+                } else {
+                    bw.write(",#{bean." + fieldInfo.getPropertyName() + "}");
+                }
+            }
+            bw.write(")");
+            bw.newLine();
+            bw.write("\t\t</foreach>");
+            bw.newLine();
+            bw.write("\t\tON DUPLICATE KEY UPDATE");
+            bw.newLine();
+            index1 = false;
+            for (FieldInfo fieldInfo : tableInfo.getFieldList()) {
+                //去除唯一索引的更新
+                if (keyTempMap.get(fieldInfo.getFieldName()) != null) {
+                    continue;
+                }
+                if(!index1){
+                    bw.write("\t\t" + fieldInfo.getFieldName() + " = VALUES(" + fieldInfo.getFieldName() + ")");
+                    index1 = true;
+                }else{
+                    bw.write(",");
+                    bw.newLine();
+                    bw.write("\t\t" + fieldInfo.getFieldName() + " = VALUES(" + fieldInfo.getFieldName() + ")");
+                }
+            }
+            bw.newLine();
+            bw.write("\t</insert>");
+            bw.newLine();
+            bw.newLine();
 
 
 
