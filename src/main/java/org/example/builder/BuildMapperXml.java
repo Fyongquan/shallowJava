@@ -4,6 +4,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.example.bean.Constants;
 import org.example.bean.FieldInfo;
 import org.example.bean.TableInfo;
+import org.example.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -471,6 +472,54 @@ public class BuildMapperXml {
             bw.write("\t</insert>");
             bw.newLine();
             bw.newLine();
+
+            //根据主键修改
+            StringBuilder methodName;
+            StringBuilder commentParams;
+            StringBuffer params;
+            for(Map.Entry<String, List<FieldInfo>> entry : key.entrySet()){
+                methodName = new StringBuilder();
+                commentParams = new StringBuilder();
+                params = new StringBuffer();
+
+                List<FieldInfo> fieldInfoList = entry.getValue();
+
+                Integer index = 0;
+                for( FieldInfo fieldInfo : fieldInfoList){
+                    index++;
+                    methodName.append(StringUtils.uperCaseFirstLetter(fieldInfo.getPropertyName()));
+                    commentParams.append(fieldInfo.getPropertyName());
+                    params.append(fieldInfo.getFieldName() + " = #{" + fieldInfo.getPropertyName() + "}");
+                    if(index < fieldInfoList.size()){
+                        methodName.append("And");
+                        commentParams.append("和");
+                        params.append(" and ");
+                    }
+                }
+                //添加注释
+                bw.write("\t<!-- \"根据\"" + commentParams + "\"查询\" -->");
+                bw.newLine();
+                bw.write("\t<select id=\"selectBy" + methodName + "\" resultMap=\"base_result_map\">");
+                bw.newLine();
+                bw.write("\t\tSELECT <include refid=\"" + BASE_COLUMN_LIST + "\"/> from " + tableInfo.getTableName() + " where " + params);
+                bw.newLine();
+                bw.write("\t</select>");
+                bw.newLine();
+                bw.newLine();
+
+//                //添加注释
+//                BuildComment.createFieldComment(bw, "根据" + commentParams + "更新");
+//                bw.newLine();
+//                bw.newLine();
+//
+//                //添加注释
+//                BuildComment.createFieldComment(bw, "根据" + commentParams + "删除");
+//                bw.newLine();
+//                bw.newLine();
+            }
+
+
+
 
 
 
