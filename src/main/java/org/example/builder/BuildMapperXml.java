@@ -385,7 +385,7 @@ public class BuildMapperXml {
             bw.newLine();
             bw.write("\t\tVALUES");
             bw.newLine();
-            bw.write("\t\t<foreach collection=\"list\" item=\"bean\" index=\"index\" separator=\",\">");
+            bw.write("\t\t<foreach collection=\"beans\" item=\"bean\" index=\"index\" separator=\",\">");
             bw.newLine();
             bw.write("\t\t\t(");
             index1 = false;
@@ -432,7 +432,7 @@ public class BuildMapperXml {
             bw.newLine();
             bw.write("\t\tVALUES");
             bw.newLine();
-            bw.write("\t\t<foreach collection=\"list\" item=\"bean\" index=\"index\" separator=\",\">");
+            bw.write("\t\t<foreach collection=\"beans\" item=\"bean\" index=\"index\" separator=\",\">");
             bw.newLine();
             bw.write("\t\t\t(");
             index1 = false;
