@@ -17,7 +17,7 @@ import java.util.Map;
  * 创建Mapper
  */
 public class BuildMapper {
-    public static final Logger logger = LoggerFactory.getLogger(BuildPo.class);
+    public static final Logger logger = LoggerFactory.getLogger(BuildMapper.class);
 
     public static void execute(TableInfo tableInfo) {
         File folder = new File(Constants.PATH_MAPPER);
@@ -78,13 +78,13 @@ public class BuildMapper {
 
                 //添加注释
                 BuildComment.createFieldComment(bw, "根据" + commentParams + "更新");
-                bw.write("\tInteger updateBy" + methodName + "(" + "@Param(\"bean\") T t, " + params + ");");
+                bw.write("\tLong updateBy" + methodName + "(" + "@Param(\"bean\") T t, " + params + ");");
                 bw.newLine();
                 bw.newLine();
 
                 //添加注释
                 BuildComment.createFieldComment(bw, "根据" + commentParams + "删除");
-                bw.write("\tInteger deleteBy" + methodName + "(" + params + ");");
+                bw.write("\tLong deleteBy" + methodName + "(" + params + ");");
                 bw.newLine();
                 bw.newLine();
             }

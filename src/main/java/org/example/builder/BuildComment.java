@@ -2,12 +2,9 @@ package org.example.builder;
 
 import org.example.bean.Constants;
 import org.example.utils.DateUtils;
-import org.example.utils.PropertiesUtils;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.sql.Connection;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -15,13 +12,13 @@ import java.util.Date;
  */
 public class BuildComment {
 
-    public static void createClassComment(BufferedWriter bw, String classComment){
+    public static void createClassComment(BufferedWriter bw, String classComment) {
         try {
-    /**
-     * 创建类注释
-     * @param bw BufferedWriter对象，用于写入注释
-     * @param classComment 类的注释内容
-     */
+            /**
+             * 创建类注释
+             * @param bw BufferedWriter对象，用于写入注释
+             * @param classComment 类的注释内容
+             */
             bw.write("/**");
             bw.newLine();
             bw.write(" * @author: " + Constants.AUTHER);
@@ -35,16 +32,15 @@ public class BuildComment {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-            // 捕获IO异常并抛出运行时异常
     }
 
-    public static void createFieldComment(BufferedWriter bw, String fieldComment){
+    public static void createFieldComment(BufferedWriter bw, String fieldComment) {
         fieldComment = fieldComment == null ? "" : fieldComment;
-    /**
-     * 创建字段注释
-     * @param bw BufferedWriter对象，用于写入注释
-     * @param fieldComment 字段的注释内容
-     */
+        /**
+         * 创建字段注释
+         * @param bw BufferedWriter对象，用于写入注释
+         * @param fieldComment 字段的注释内容
+         */
         try {
             bw.write("\t/**");
             bw.newLine();
@@ -55,14 +51,28 @@ public class BuildComment {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-            // 捕获IO异常并抛出运行时异常
     }
 
-    public static void createMethodComment(){
+    public static void createMethodComment(BufferedWriter bw, String methodComment) {
 
-    /**
-     * 创建方法注释（方法体尚未实现）
-     */
-
+        /**
+         * 创建方法注释
+         */
+        methodComment = methodComment == null ? "" : methodComment;
+        /**
+         * 创建字段注释
+         * @param bw BufferedWriter对象，用于写入注释
+         * @param methodComment 方法的注释内容
+         */
+        try {
+            bw.write("\t/**");
+            bw.newLine();
+            bw.write("\t * " + methodComment);
+            bw.newLine();
+            bw.write("\t */");
+            bw.newLine();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

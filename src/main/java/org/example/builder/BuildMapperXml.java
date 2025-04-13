@@ -17,7 +17,7 @@ import java.util.Map;
  * 创建Mapper
  */
 public class BuildMapperXml {
-    public static final Logger logger = LoggerFactory.getLogger(BuildPo.class);
+    public static final Logger logger = LoggerFactory.getLogger(BuildMapperXml.class);
 
     private static final String BASE_COLUMN_LIST = "base_column_list";
 

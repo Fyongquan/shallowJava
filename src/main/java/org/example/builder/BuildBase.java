@@ -46,6 +46,11 @@ public class BuildBase {
         headerInfoList.clear();
         headerInfoList.add("package " + Constants.PACKAGE_QUERY + ";");
         build(headerInfoList,"BaseQuery", Constants.PATH_QUERY);
+
+        //生成PaginationResultVO分页查询结果
+        headerInfoList.clear();
+        headerInfoList.add("package " + Constants.PACKAGE_VO + ";");
+        build(headerInfoList,"PaginationResultVO", Constants.PATH_VO);
     }
 
     public static void build(List<String> headerInfoList, String fileName, String outPutPath){

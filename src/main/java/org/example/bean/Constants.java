@@ -3,6 +3,7 @@ package org.example.bean;
 import org.example.utils.PropertiesUtils;
 
 public class Constants {
+    public static String AUTHER;
     public static Boolean IGNORE_TABLE_PERFIX;
 
     public static String SUFFIX_BEAN_QUERY;
@@ -14,6 +15,10 @@ public class Constants {
     public static String SUFFIX_BEAN_QUERY_DATE_END;
 
     public static String SUFFIX_MAPPER;
+
+    public static String SUFFIX_SERVICE;
+
+    public static String SUFFIX_SERVICEIMPL;
 
     //需要忽略的属性
     public static String IGNORE_BEAN_TOJSON_FIELD;
@@ -36,15 +41,24 @@ public class Constants {
     public static String PACKAGE_PO;
 
     public static String PACKAGE_QUERY;
+
+    public static String PACKAGE_VO;
+
     public static String PACKAGE_UTILS;
 
     public static String PACKAGE_ENUMS;
 
     public static String PACKAGE_MAPPER;
 
+    public static String PACKAGE_SERVICE;
+
+    public static String PACKAGE_SERVICEIMPL;
+
     public static String PATH_PO;
 
     public static String PATH_QUERY;
+
+    public static String PATH_VO;
 
     public static String PATH_UTILS;
 
@@ -54,7 +68,9 @@ public class Constants {
 
     public static String PATH_MAPPER_XML;
 
-    public static String AUTHER;
+    public static String PATH_SERVICE;
+
+    public static String PATH_SERVICEIMPL;
 
     static{
         IGNORE_BEAN_TOJSON_FIELD = PropertiesUtils.getString("ignore.bean.toJson.field");
@@ -74,23 +90,31 @@ public class Constants {
         SUFFIX_BEAN_QUERY_DATE_START = PropertiesUtils.getString("suffix.bean.query.date.start");
         SUFFIX_BEAN_QUERY_DATE_END = PropertiesUtils.getString("suffix.bean.query.date.end");
         SUFFIX_MAPPER = PropertiesUtils.getString("suffix.mapper");
+        SUFFIX_SERVICE = PropertiesUtils.getString("suffix.service");
+        SUFFIX_SERVICEIMPL = PropertiesUtils.getString("suffix.service.impl");
 
         PACKAGE_BASE = PropertiesUtils.getString("package.base");
         PACKAGE_PO = PACKAGE_BASE + "." + PropertiesUtils.getString("package.po");
         PACKAGE_QUERY = PACKAGE_BASE + "." + PropertiesUtils.getString("package.query");
+        PACKAGE_VO = PACKAGE_BASE + "." + PropertiesUtils.getString("package.vo");
         PACKAGE_UTILS = PACKAGE_BASE + '.' + PropertiesUtils.getString("package.utils");
         PACKAGE_ENUMS = PACKAGE_BASE + "." + PropertiesUtils.getString("package.enums");
         PACKAGE_MAPPER = PACKAGE_BASE + "." + PropertiesUtils.getString("package.mapper");
+        PACKAGE_SERVICE = PACKAGE_BASE + "." + PropertiesUtils.getString("package.service");
+        PACKAGE_SERVICEIMPL = PACKAGE_BASE + "." + PropertiesUtils.getString("package.service.impl");
 
         PATH_BASE = PropertiesUtils.getString("path.base");
         PATH_JAVA = PATH_BASE + "java";
         PATH_RESOURCES = PATH_BASE + "resources";
         PATH_PO = PATH_JAVA + "/" + PACKAGE_PO.replace(".", "/");
         PATH_QUERY = PATH_JAVA + "/" + PACKAGE_QUERY.replace(".", "/");
+        PATH_VO = PATH_JAVA + "/" + PACKAGE_VO.replace(".", "/");
         PATH_UTILS = PATH_JAVA + "/" + PACKAGE_UTILS.replace(".", "/");
         PATH_ENUMS = PATH_JAVA + "/" + PACKAGE_ENUMS.replace(".", "/");
         PATH_MAPPER = PATH_JAVA + "/" + PACKAGE_MAPPER.replace(".", "/");
         PATH_MAPPER_XML = PATH_RESOURCES + "/" + PropertiesUtils.getString("package.mapper").replace(".", "/");
+        PATH_SERVICE = PATH_JAVA + "/" + PACKAGE_SERVICE.replace(".", "/");
+        PATH_SERVICEIMPL = PATH_JAVA + "/" + PACKAGE_SERVICEIMPL.replace(".", "/");
     }
 
     public final static String[] SQL_DATA_TIME_TYPES = new String[]{"datetime", "timestamp"};
