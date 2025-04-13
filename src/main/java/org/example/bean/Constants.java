@@ -31,11 +31,6 @@ public class Constants {
     public static String BEAN_DATE_PARSE_CLASS;
     public static String BEAN_DATE_PARSE_EXPRESSION;
 
-    public static String PATH_BASE;
-    public static String PATH_JAVA;
-
-    public static String PATH_RESOURCES;
-
     public static String PACKAGE_BASE;
 
     public static String PACKAGE_PO;
@@ -52,8 +47,17 @@ public class Constants {
 
     public static String PACKAGE_SERVICE;
 
-    public static String PACKAGE_SERVICEIMPL;
+    public static String PACKAGE_SERVICE_IMPL;
 
+    public static String PACKAGE_CONTROLLER;
+
+    public static String PACKAGE_EXCEPTION;
+
+    public static String PATH_BASE;
+
+    public static String PATH_JAVA;
+
+    public static String PATH_RESOURCES;
     public static String PATH_PO;
 
     public static String PATH_QUERY;
@@ -70,7 +74,11 @@ public class Constants {
 
     public static String PATH_SERVICE;
 
-    public static String PATH_SERVICEIMPL;
+    public static String PATH_SERVICE_IMPL;
+
+    public static String PATH_CONTROLLER;
+
+    public static String PATH_EXCEPTION;
 
     static{
         IGNORE_BEAN_TOJSON_FIELD = PropertiesUtils.getString("ignore.bean.toJson.field");
@@ -101,7 +109,9 @@ public class Constants {
         PACKAGE_ENUMS = PACKAGE_BASE + "." + PropertiesUtils.getString("package.enums");
         PACKAGE_MAPPER = PACKAGE_BASE + "." + PropertiesUtils.getString("package.mapper");
         PACKAGE_SERVICE = PACKAGE_BASE + "." + PropertiesUtils.getString("package.service");
-        PACKAGE_SERVICEIMPL = PACKAGE_BASE + "." + PropertiesUtils.getString("package.service.impl");
+        PACKAGE_SERVICE_IMPL = PACKAGE_BASE + "." + PropertiesUtils.getString("package.service.impl");
+        PACKAGE_CONTROLLER = PACKAGE_BASE + "." + PropertiesUtils.getString("package.controller");
+        PACKAGE_EXCEPTION = PACKAGE_BASE + "." + PropertiesUtils.getString("package.exception");
 
         PATH_BASE = PropertiesUtils.getString("path.base");
         PATH_JAVA = PATH_BASE + "java";
@@ -114,7 +124,9 @@ public class Constants {
         PATH_MAPPER = PATH_JAVA + "/" + PACKAGE_MAPPER.replace(".", "/");
         PATH_MAPPER_XML = PATH_RESOURCES + "/" + PropertiesUtils.getString("package.mapper").replace(".", "/");
         PATH_SERVICE = PATH_JAVA + "/" + PACKAGE_SERVICE.replace(".", "/");
-        PATH_SERVICEIMPL = PATH_JAVA + "/" + PACKAGE_SERVICEIMPL.replace(".", "/");
+        PATH_SERVICE_IMPL = PATH_JAVA + "/" + PACKAGE_SERVICE_IMPL.replace(".", "/");
+        PATH_CONTROLLER = PATH_JAVA + "/" + PACKAGE_CONTROLLER.replace(".", "/");
+        PATH_EXCEPTION = PATH_JAVA + "/" + PACKAGE_EXCEPTION.replace(".", "/");
     }
 
     public final static String[] SQL_DATA_TIME_TYPES = new String[]{"datetime", "timestamp"};

@@ -85,12 +85,12 @@ public class BuildService {
             bw.newLine();
 
             BuildComment.createMethodComment(bw, "根据条件查询列表");
-            bw.write("\tList<" + tableInfo.getBeanName() + "> findListByParam(" + tableInfo.getBeanParamName() + " query);");
+            bw.write("\tList<" + tableInfo.getBeanName() + "> findListByQuery(" + tableInfo.getBeanParamName() + " query);");
             bw.newLine();
             bw.newLine();
 
             BuildComment.createMethodComment(bw, "根据条件查询数量");
-            bw.write("\tLong findCountByParam(" + tableInfo.getBeanParamName() + " query);");
+            bw.write("\tInteger findCountByQuery(" + tableInfo.getBeanParamName() + " query);");
             bw.newLine();
             bw.newLine();
 
@@ -100,17 +100,17 @@ public class BuildService {
             bw.newLine();
 
             BuildComment.createMethodComment(bw, "新增");
-            bw.write("\tLong add(" + tableInfo.getBeanParamName() + " bean);");
+            bw.write("\tInteger add(" + tableInfo.getBeanName() + " bean);");
             bw.newLine();
             bw.newLine();
 
             BuildComment.createMethodComment(bw, "批量新增");
-            bw.write("\tLong addBatch(List<" + tableInfo.getBeanParamName() + "> listBean);");
+            bw.write("\tInteger addBatch(List<" + tableInfo.getBeanName() + "> listBean);");
             bw.newLine();
             bw.newLine();
 
             BuildComment.createMethodComment(bw, "批量新增/修改");
-            bw.write("\tLong addOrUpdateBatch(List<" + tableInfo.getBeanParamName() + "> listBean);");
+            bw.write("\tInteger addOrUpdateBatch(List<" + tableInfo.getBeanName() + "> listBean);");
             bw.newLine();
             bw.newLine();
 
@@ -139,19 +139,19 @@ public class BuildService {
                 }
                 //添加注释
                 BuildComment.createFieldComment(bw, "根据" + commentParams + "查询对象");
-                bw.write("\t" + tableInfo.getBeanParamName() + " get" + tableInfo.getBeanParamName() + "By" + methodName + "(" + params + ");");
+                bw.write("\t" + tableInfo.getBeanName() + " get" + tableInfo.getBeanName() + "By" + methodName + "(" + params + ");");
                 bw.newLine();
                 bw.newLine();
 
                 //添加注释
                 BuildComment.createFieldComment(bw, "根据" + commentParams + "修改");
-                bw.write("\tLong update"+ tableInfo.getBeanParamName() +"By" + methodName + "(" + tableInfo.getBeanParamName() + " bean," + params + ");");
+                bw.write("\tInteger update"+ tableInfo.getBeanName() +"By" + methodName + "(" + tableInfo.getBeanName() + " bean," + params + ");");
                 bw.newLine();
                 bw.newLine();
 
                 //添加注释
                 BuildComment.createFieldComment(bw, "根据" + commentParams + "删除");
-                bw.write("\tLong delete" + tableInfo.getBeanParamName() + "By" + methodName + "(" + params + ");");
+                bw.write("\tInteger delete" + tableInfo.getBeanName() + "By" + methodName + "(" + params + ");");
                 bw.newLine();
                 bw.newLine();
             }

@@ -51,6 +51,21 @@ public class BuildBase {
         headerInfoList.clear();
         headerInfoList.add("package " + Constants.PACKAGE_VO + ";");
         build(headerInfoList,"PaginationResultVO", Constants.PATH_VO);
+
+        //生成ResponseCodeEnum响应码枚举
+        headerInfoList.clear();
+        headerInfoList.add("package " + Constants.PACKAGE_ENUMS + ";");
+        build(headerInfoList,"ResponseCodeEnum", Constants.PATH_ENUMS);
+
+        //生成ResponseVO响应结果
+        headerInfoList.clear();
+        headerInfoList.add("package " + Constants.PACKAGE_VO + ";");
+        build(headerInfoList,"ResponseVO", Constants.PATH_VO);
+
+        //生成BaseController基础控制器
+        headerInfoList.clear();
+        headerInfoList.add("package " + Constants.PACKAGE_CONTROLLER + ";");
+        build(headerInfoList,"BaseController", Constants.PATH_CONTROLLER);
     }
 
     public static void build(List<String> headerInfoList, String fileName, String outPutPath){

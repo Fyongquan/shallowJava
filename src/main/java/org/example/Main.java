@@ -17,7 +17,7 @@ public class Main {
             BuildMapper.execute(tableInfo);
             BuildMapperXml.execute(tableInfo);
             BuildService.execute(tableInfo);
-//            BuildServiceImpl.execute(tableInfo);
+            BuildServiceImpl.execute(tableInfo);
         }
     }
 }
